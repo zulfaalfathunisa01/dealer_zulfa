@@ -16,12 +16,48 @@ if (!isset($_SESSION['email'])) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f9; }
-    .sidebar { height:100vh; background:#0d6efd; color:white; }
-    .sidebar a { color:white; text-decoration:none; display:block; padding:10px; border-radius:8px; }
-    .sidebar a:hover { background:#0b5ed7; }
-    .content { padding:20px; }
-    .card-custom { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+}
+
+/* Sidebar tetap di kiri, tidak ikut scroll */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: #0d6efd;
+  color: white;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.sidebar a:hover {
+  background: #0b5ed7;
+}
+
+/* Biar isi halaman gak ketimpa sidebar */
+.content {
+  margin-left: 240px;
+  padding: 20px;
+}
+
+.card-custom {
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
   </style>
 </head>
 <body>

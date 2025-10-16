@@ -88,25 +88,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
     }
 
     // ✅ Notifikasi Bootstrap
-    echo '
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Checkout Berhasil</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    </head>
-    <body class="bg-light d-flex justify-content-center align-items-center vh-100">
-        <div class="card shadow-lg text-center p-5" style="max-width: 500px;">
-            <h3 class="text-success mb-3">✅ Pesanan Berhasil!</h3>
-            <p>Terima kasih, <strong>' . htmlspecialchars($nama) . '</strong>.<br>
-            Pesananmu sedang diproses oleh admin.</p>
-            <a href="../wishlist.php" class="btn btn-primary mt-3">Lihat Pesanan Saya</a>
+echo '
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Berhasil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg text-center p-5" style="max-width: 500px;">
+        <h3 class="text-success mb-3">✅ Pesanan Berhasil!</h3>
+        <p>Terima kasih, <strong>' . htmlspecialchars($nama) . '</strong>.<br>
+        Pesananmu sedang diproses oleh admin.</p>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <a href="../riwayat.php" class="btn btn-primary">Lihat Pesanan Saya</a>
+            <a href="../index.php" class="btn btn-outline-secondary">Kembali ke Produk</a>
         </div>
-    </body>
-    </html>
-    ';
+    </div>
+</body>
+</html>
+';
     exit;
 }
 ?>
