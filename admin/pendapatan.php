@@ -7,40 +7,43 @@ include "../db/koneksi.php";
 
   <?php
   // Ambil data transaksi yang sudah selesai
-  $query = mysqli_query($koneksi, "
-    SELECT id_transaksi, tanggal, total_harga, nama_pelanggan
+  $sql = "
+    SELECT id_transaksi, tanggal_transaksi AS tanggal, total_harga, pengguna_id
     FROM transaksi
     WHERE status = 'selesai'
-    ORDER BY tanggal DESC
-  ");
-  ?>
+    ORDER BY tanggal_transaksi DESC
+  ";
 
-  <table class="table table-bordered table-striped">
-    <thead class="table-success">
-      <tr>
-        <th>ID Transaksi</th>
-        <th>Tanggal</th>
-        <th>Nama Pelanggan</th>
-        <th>Total Harga</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-      $grandTotal = 0;
+  $query = mysqli_query($koneksi, $sql);
+
+  // Tambahkan pengecekan error
+  if (!$query) {
+      die("<div class='alert alert-danger'>Query Error: " . mysqli_error($koneksi) . "</div>");
+  }
+
+  // Tampilkan datanya
+  if (mysqli_num_rows($query) > 0) {
+      echo "<table class='table table-bordered table-striped'>
+              <thead class='table-primary'>
+                <tr>
+                  <th>ID Transaksi</th>
+                  <th>Tanggal</th>
+                  <th>Total Harga</th>
+                  <th>ID Pengguna</th>
+                </tr>
+              </thead>
+              <tbody>";
       while ($data = mysqli_fetch_assoc($query)) {
-        $grandTotal += $data['total_harga'];
-      ?>
-        <tr>
-          <td><?= $data['id_transaksi'] ?></td>
-          <td><?= date('d-m-Y', strtotime($data['tanggal'])) ?></td>
-          <td><?= $data['nama_pelanggan'] ?? '-' ?></td>
-          <td>Rp <?= number_format($data['total_harga'], 0, ',', '.') ?></td>
-        </tr>
-      <?php } ?>
-      <tr class="table-success fw-bold">
-        <td colspan="3" class="text-end">Total Pendapatan</td>
-        <td>Rp <?= number_format($grandTotal, 0, ',', '.') ?></td>
-      </tr>
-    </tbody>
-  </table>
+          echo "<tr>
+                  <td>{$data['id_transaksi']}</td>
+                  <td>{$data['tanggal']}</td>
+                  <td>Rp " . number_format($data['total_harga'], 0, ',', '.') . "</td>
+                  <td>{$data['pengguna_id']}</td>
+                </tr>";
+      }
+      echo "</tbody></table>";
+  } else {
+      echo "<div class='alert alert-warning'>Belum ada transaksi selesai.</div>";
+  }
+  ?>
 </div>

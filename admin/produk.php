@@ -48,13 +48,21 @@ if (!$result) {
             <td><span class="text-dark"><?= ucfirst($row['kategori']) ?></span></td>
             <td><strong>Rp <?= number_format($row['harga'], 0, ',', '.') ?></strong></td>
             <td class="d-flex gap-2 justify-content-center">
-              <a href="index.php?page=produk_edit&id=<?= $row['id_produk'] ?>" class="btn btn-sm btn-warning">
-                <i class="bi bi-pencil"></i> Edit
-              </a>
-              <a href="produk_delete.php?id=<?= $row['id_produk'] ?>" 
-                 class="btn btn-sm btn-primary" 
-                 onclick="return confirm('Yakin hapus produk ini?')">
-                <i class="bi bi-trash"></i> Hapus
+             <td class="d-flex gap-2 justify-content-center">
+  <a href="index.php?page=produk_edit&id=<?= $row['id_produk'] ?>" class="btn btn-sm btn-warning">
+    <i class="bi bi-pencil"></i> Edit
+  </a>
+  <a href="produk_delete.php?id=<?= $row['id_produk'] ?>" 
+     class="btn btn-sm btn-primary" 
+     onclick="return confirm('Yakin hapus produk ini?')">
+    <i class="bi bi-trash"></i> Hapus
+  </a>
+
+  <!-- 🛒 Tombol Tambah ke Keranjang -->
+  <a href="keranjang_tambah.php?id=<?= $row['id_produk'] ?>" class="btn btn-sm btn-success">
+    <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
+  </a>
+</td>
               </a>
             </td>
           </tr>

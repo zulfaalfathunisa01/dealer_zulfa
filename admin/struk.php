@@ -26,88 +26,125 @@ if (!$transaksi) {
       box-sizing: border-box;
     }
     body {
-      font-family: "Courier New", monospace;
-      background: #f7f7f7;
-      color: #000;
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #ffffff);
+      color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; /* biar posisinya di tengah layar penuh */
+      height: 100vh;
       margin: 0;
     }
     .struk-container {
       background: #fff;
-      width: 80mm;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      width: 110mm;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      transition: 0.3s;
+    }
+    .struk-container:hover {
+      transform: scale(1.01);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.25);
     }
     .header {
       text-align: center;
-      border-bottom: 2px dashed #000;
-      padding-bottom: 5px;
-      margin-bottom: 10px;
+      border-bottom: 2px dashed #007bff;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
     }
     .header img {
-      width: 50px;
-      height: 50px;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
       margin-bottom: 5px;
     }
-    h2 {
-      font-size: 18px;
+    .header h2 {
+      font-size: 22px;
+      color: #007bff;
       margin: 0;
     }
-    h4 {
-      font-size: 13px;
+    .header h4 {
+      font-size: 14px;
       margin: 2px 0;
+      color: #666;
     }
+
+    .info {
+      background: #f9f9ff;
+      border: 1px solid #007bff;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .info p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 14px;
+      margin-top: 12px;
     }
-    td, th {
-      padding: 3px;
-    }
-    .info p {
-      font-size: 13px;
-      margin: 3px 0;
+    td {
+      padding: 7px 4px;
     }
     .total {
       font-weight: bold;
-      border-top: 1px dashed #000;
-      border-bottom: 2px solid #000;
-      font-size: 14px;
-      padding-top: 6px;
+      font-size: 15px;
+      color: #007bff;
+      border-top: 2px dashed #007bff;
+      border-bottom: 2px solid #007bff;
+      margin-top: 12px;
     }
     .footer {
       text-align: center;
-      margin-top: 10px;
-      font-size: 12px;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #666;
+    }
+    .footer strong {
+      color: #007bff;
     }
     .footer p {
-      margin: 3px 0;
+      margin: 4px 0;
     }
+
     .print-btn {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
     .print-btn button {
-      background-color: #007bff;
+      background: linear-gradient(90deg, #007bff, #00bfff);
       color: white;
       border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
+      padding: 10px 20px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      transition: 0.3s;
     }
     .print-btn button:hover {
-      background-color: #0056b3;
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #0069d9, #0090ff);
     }
+
+    .back-btn {
+      background: linear-gradient(90deg, #6c757d, #8a8f94);
+    }
+    .back-btn:hover {
+      background: linear-gradient(90deg, #5a6268, #6c757d);
+    }
+
     @media print {
       body {
-        display: block;
         background: #fff;
       }
       .struk-container {
@@ -148,6 +185,7 @@ if (!$transaksi) {
 
     <div class="print-btn">
       <button onclick="window.print()">🖨️ Cetak Struk</button>
+      <button class="back-btn" onclick="window.location.href='transaksi.php'">⬅️ Kembali</button>
     </div>
   </div>
 </body>
