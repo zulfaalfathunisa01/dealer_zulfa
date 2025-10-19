@@ -46,6 +46,10 @@
           </a>
         </li>
 
+         <li class="nav-item">
+          <a class="nav-link text-white" href="riwayat.php">🧾 Riwayat</a>
+        </li>
+
         <li class="nav-item">
           <a class="nav-link text-white" href="logout.php">🚪 Logout</a>
         </li>

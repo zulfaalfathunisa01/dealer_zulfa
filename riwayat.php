@@ -1,5 +1,7 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Jakarta'); // Set waktu ke WIB
+
 include "db/koneksi.php";
 
 // Pastikan user sudah login
@@ -30,6 +32,10 @@ $result = $koneksi->query($query);
 <body class="bg-light">
 
 <div class="container mt-5">
+
+  <!-- Tombol Kembali -->
+  <a href="index.php" class="btn btn-secondary mb-3">⬅ Kembali</a>
+
   <h2 class="mb-4 text-center text-primary fw-bold">📜 Riwayat Pesanan Saya</h2>
 
   <?php if ($result->num_rows > 0): ?>
@@ -47,7 +53,7 @@ $result = $koneksi->query($query);
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <td><?= $row['id_transaksi'] ?></td>
-          <td><?= date('d-m-Y H:i', strtotime($row['tanggal_transaksi'])) ?></td>
+          <td><?= date('l, d-m-Y H:i:s', strtotime($row['tanggal_transaksi'])) ?> WIB</td> <!-- Tampil lengkap hari, tanggal, jam -->
           <td>Rp <?= number_format($row['total_harga'], 0, ',', '.') ?></td>
           <td>
             <?php if ($row['status'] == 'proses'): ?>
@@ -70,7 +76,7 @@ $result = $koneksi->query($query);
       </tbody>
     </table>
   <?php else: ?>
-    <div class="alert alert-info text-center">Belum ada pesanan yang kamu buat, Cengenggg 💕</div>
+    <div class="alert alert-info text-center">Belum ada pesanan yang kamu buat</div>
   <?php endif; ?>
 </div>
 

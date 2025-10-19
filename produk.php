@@ -1,37 +1,49 @@
 <?php
 session_start();
-include "db/koneksi.php"; // sesuaikan path koneksi
+include "db/koneksi.php";
 
-// Query ambil produk
+// ========== ADD TO CART DULU ==========
+if (isset($_GET['add'])) {
+    if (!isset($_SESSION['id_pengguna'])) {
+        echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
+        exit;
+    }
+
+    $id_pengguna = $_SESSION['id_pengguna'];
+    $id_produk = intval($_GET['add']);
+    $qty = 1;
+
+    // Cek apakah produk sudah ada di keranjang user
+    $cek = $koneksi->prepare("SELECT id_keranjang, qty FROM keranjang WHERE id_pengguna=? AND id_produk=?");
+    $cek->bind_param("ii", $id_pengguna, $id_produk);
+    $cek->execute();
+    $res = $cek->get_result();
+
+    if ($res->num_rows > 0) {
+        $row = $res->fetch_assoc();
+        $new_qty = $row['qty'] + 1;
+        $up = $koneksi->prepare("UPDATE keranjang SET qty=? WHERE id_keranjang=?");
+        $up->bind_param("ii", $new_qty, $row['id_keranjang']);
+        $up->execute();
+    } else {
+        $ins = $koneksi->prepare("INSERT INTO keranjang (id_pengguna, id_produk, qty) VALUES (?, ?, ?)");
+        $ins->bind_param("iii", $id_pengguna, $id_produk, $qty);
+        $ins->execute();
+    }
+
+    echo "<script>alert('Produk ditambahkan ke keranjang!'); window.location='produk.php';</script>";
+    exit;
+}
+
+
+// ========== SETELAH ITU BARU AMBIL PRODUK ==========
 $sql = "SELECT m.id_produk, m.nama_produk, mk.nama_merk, m.deskripsi, m.harga, m.photo
         FROM produk m
         LEFT JOIN merk mk ON m.merk_id = mk.id_merk
         ORDER BY m.id_produk DESC";
 $result = $koneksi->query($sql);
-
-// Kalau tombol Add to Cart ditekan
-if (isset($_GET['add'])) {
-    $id = intval($_GET['add']);
-    $sql = "SELECT * FROM produk WHERE id_produk = $id";
-    $res = $koneksi->query($sql);
-    $produk = $res->fetch_assoc();
-
-    if ($produk) {
-        // kalau belum ada di cart
-        if (!isset($_SESSION['cart'][$id])) {
-            $_SESSION['cart'][$id] = [
-                'nama'  => $produk['nama_produk'],
-                'harga' => $produk['harga'],
-                'qty'   => 1
-            ];
-        } else {
-            $_SESSION['cart'][$id]['qty'] += 1;
-        }
-    }
-    header("Location: produk.php");
-    exit;
-}
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -72,10 +84,6 @@ if (isset($_GET['add'])) {
 
         <li class="nav-item">
           <a class="nav-link text-white" href="produk_keranjang.php">🛒 Keranjang</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link text-white" href="pesanan_saya.php">📦 Pesanan Saya</a>
         </li>
 
         <li class="nav-item">
