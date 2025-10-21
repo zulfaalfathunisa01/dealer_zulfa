@@ -48,15 +48,18 @@ if (!empty($_SESSION['wishlist'])) {
       margin: 0;
       padding: 0;
     }
+
     .container {
       width: 90%;
       margin: 30px auto;
     }
+
     h2 {
       text-align: center;
       margin-bottom: 25px;
       color: #333;
     }
+
     .wishlist-item {
       display: flex;
       align-items: center;
@@ -68,35 +71,42 @@ if (!empty($_SESSION['wishlist'])) {
       margin-bottom: 15px;
       transition: transform 0.2s ease;
     }
+
     .wishlist-item:hover {
       transform: scale(1.01);
     }
+
     .wishlist-item img {
       width: 140px;
       height: 100px;
       object-fit: cover;
       border-radius: 10px;
     }
+
     .wishlist-info {
       flex: 1;
       margin-left: 20px;
     }
+
     .wishlist-info h4 {
       margin: 0 0 5px 0;
       color: #007bff;
       font-size: 18px;
     }
+
     .wishlist-info p {
       margin: 0;
       color: green;
       font-weight: bold;
       font-size: 16px;
     }
+
     .wishlist-buttons {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+
     .btn {
       text-decoration: none;
       color: #fff;
@@ -106,17 +116,35 @@ if (!empty($_SESSION['wishlist'])) {
       text-align: center;
       transition: background 0.2s ease;
     }
+
     .btn-keranjang {
       background: #28a745;
     }
+
     .btn-keranjang:hover {
       background: #218838;
     }
+
     .btn-hapus {
       background: #dc3545;
     }
+
     .btn-hapus:hover {
       background: #c82333;
+    }
+
+    /* =======================
+       WARNA TEKS CARI (HITAM)
+       ======================= */
+    input[type="search"],
+    input[type="text"],
+    .form-control {
+      color: #000 !important; /* teks ngetik jadi hitam */
+    }
+
+    input[type="search"]::placeholder,
+    input[type="text"]::placeholder {
+      color: #555 !important; /* placeholder abu tua */
     }
   </style>
 </head>
