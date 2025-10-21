@@ -1,10 +1,11 @@
 <?php
 session_start();
 include "db/koneksi.php";
+date_default_timezone_set('Asia/Jakarta');
 
 // pastikan user login
 if (!isset($_SESSION['id_pengguna'])) {
-  header("Location: login.php");
+  echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
   exit;
 }
 $id_pengguna = intval($_SESSION['id_pengguna']);
@@ -72,65 +73,71 @@ $res = $q->get_result();
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Keranjang | Dealer Motor</title>
+  <title>Keranjang Belanja</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: Poppins, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header seperti riwayat */
+    .header-keranjang {
+      position: sticky;
+      top: 0;
+      background: #ffffff;
+      z-index: 10;
+      padding: 20px 0;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .header-keranjang h2 {
+      color: #007bff;
+      margin: 0;
+    }
+
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      max-height: calc(100vh - 120px);
+    }
+
+    table {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-danger, .btn-success, .btn-warning {
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="index.php">Dealer Motor</a>
-    
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<div class="header-keranjang">
+  <h2>🛒 Keranjang Belanja Kamu</h2>
+</div>
 
-    <div class="collapse navbar-collapse" id="navbarContent">
-      <!-- Form pencarian -->
-      <form class="d-flex ms-auto me-3" action="index.php" method="get">
-        <input class="form-control me-2" type="search" name="cari" placeholder="Cari motor..." aria-label="Search">
-        <button class="btn btn-light" type="submit">Cari</button>
-      </form>
-
-      <!-- Menu kanan -->
-      <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <?php if (isset($_SESSION['id_pengguna'])): ?>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="produk.php">Menu</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="wishlist.php">❤️ Wishlist</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white active" href="produk_keranjang.php">
-            🛒 Keranjang
-          </a>
-        </li>
-         <li class="nav-item">
-          <a class="nav-link text-white" href="riwayat.php">🧾 Riwayat</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="logout.php">🚪 Logout</a>
-        </li>
-        <?php else: ?>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="login.php">🔑 Login</a>
-        </li>
-        <?php endif; ?>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Konten Keranjang -->
-<div class="container mt-4 mb-5">
-  <h3 class="text-center mb-4">🛒 Keranjang Belanja Kamu</h3>
-
+<div class="scroll-area container">
   <form method="post" action="checkout.php">
     <div class="table-responsive">
       <table class="table table-bordered align-middle text-center">
-        <thead class="table-primary">
+        <thead>
           <tr>
             <th>Pilih</th>
             <th>Foto</th>
@@ -183,6 +190,7 @@ $res = $q->get_result();
   </form>
 </div>
 
+<?php include "footer.php"; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

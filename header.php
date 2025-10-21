@@ -1,3 +1,9 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include "db/koneksi.php";
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -10,58 +16,67 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="index.php">Dealer Motor</a>
-    
+    <a class="navbar-brand fw-bold" href="index.php"></a>
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarContent">
-      
-      <!-- Form pencarian -->
-      <form class="d-flex ms-auto me-3" action="index.php" method="get">
-        <input class="form-control me-2" type="search" name="cari" placeholder="Cari motor..." aria-label="Search">
-        <button class="btn btn-light" type="submit">Cari</button>
-      </form>
-
-      <!-- Menu kanan -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <?php if (isset($_SESSION['id_pengguna'])): ?>
-        
-        <!-- Menu tambahan sebelum wishlist -->
-        <li class="nav-item">
-          <a class="nav-link text-white" href="produk.php">Menu</a>
+
+        <!-- 🔍 Form Pencarian -->
+        <li class="nav-item me-3">
+          <form class="d-flex" role="search" method="GET" action="index.php">
+            <input 
+              class="form-control form-control-sm me-2" 
+              type="search" 
+              name="cari" 
+              placeholder="Cari motor..." 
+              aria-label="Search"
+              style="width: 180px;"
+              value="<?= isset($_GET['cari']) ? htmlspecialchars($_GET['cari']) : '' ?>"
+            >
+            <button class="btn btn-light btn-sm" type="submit">🔍</button>
+          </form>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link text-white" href="wishlist.php">❤️ Wishlist</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link text-white" href="produk_keranjang.php">
+        <!-- 🛒 Keranjang -->
+        <li class="nav-item me-3">
+          <a class="nav-link text-white position-relative" href="produk_keranjang.php">
             🛒 Keranjang
-            <?php if (!empty($_SESSION['cart'])): ?>
-              <span class="badge bg-danger"><?= count($_SESSION['cart']); ?></span>
-            <?php endif; ?>
+            <?php
+            if (isset($_SESSION['id_pengguna'])) {
+              $id_pengguna = $_SESSION['id_pengguna'];
+              $query = mysqli_query($koneksi, "SELECT COUNT(*) AS jumlah FROM keranjang WHERE id_pengguna = $id_pengguna");
+              $data = mysqli_fetch_assoc($query);
+              if ($data['jumlah'] > 0) {
+                echo "<span class='badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill'>{$data['jumlah']}</span>";
+              }
+            }
+            ?>
           </a>
         </li>
 
-         <li class="nav-item">
-          <a class="nav-link text-white" href="riwayat.php">🧾 Riwayat</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link text-white" href="logout.php">🚪 Logout</a>
-        </li>
-
+        <!-- 👤 Profil atau 🔑 Login -->
+        <?php if (isset($_SESSION['id_pengguna'])): ?>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="profil.php">👤 Profil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="logout.php">🚪 Logout</a>
+          </li>
         <?php else: ?>
-        <li class="nav-item">
-          <a class="nav-link text-white" href="login.php">🔑 Login</a>
-        </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="login.php">🔑 Login</a>
+          </li>
         <?php endif; ?>
+
       </ul>
     </div>
   </div>
 </nav>
 
-<div class="container mt-4">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
