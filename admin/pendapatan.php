@@ -10,7 +10,7 @@ include "../db/koneksi.php";
   $sql = "
     SELECT id_transaksi, tanggal_transaksi AS tanggal, total_harga, pengguna_id, status
     FROM transaksi
-    WHERE status IN ('selesai', 'kirim')
+    WHERE status IN ('selesai', 'kirim', 'batal', 'proses')
     ORDER BY tanggal_transaksi DESC
   ";
 

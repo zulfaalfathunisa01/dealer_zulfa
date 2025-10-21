@@ -147,7 +147,7 @@ include "../db/koneksi.php";
               JOIN transaksi_detail td ON t.id_transaksi = td.transaksi_id
               JOIN produk pr ON td.produk_id = pr.id_produk
               ORDER BY t.tanggal_transaksi DESC
-              LIMIT 10
+              LI
             ";
 
             $result = $koneksi->query($sql);
