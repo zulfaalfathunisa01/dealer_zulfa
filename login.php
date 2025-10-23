@@ -3,8 +3,6 @@ $page_title = "Login - My Website";
 include 'header.php';
 include 'db/koneksi.php';
 
-session_start();
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
