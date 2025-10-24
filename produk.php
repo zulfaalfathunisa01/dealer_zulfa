@@ -32,7 +32,8 @@ $result = $koneksi->query($sql);
 
 <div class="container py-5">
   <div class="text-center mb-5">
-    <h2 class="fw-bold text-primary"> Daftar Produk ZULFORCE</h2>
+    <h2 class="fw-bold text-primary">Daftar Produk ZULFORCE</h2>
+  </div>
 
   <div class="row g-4">
     <?php if ($result->num_rows > 0): ?>
@@ -57,7 +58,7 @@ $result = $koneksi->query($sql);
               <p class="text-muted mb-1"><strong>Kategori:</strong> <?= htmlspecialchars($row['kategori']) ?></p>
               <p class="text-success fw-bold fs-5 mt-2">Rp <?= number_format($row['harga'], 0, ',', '.') ?></p>
 
-              <!-- Tampilkan deskripsi singkat -->
+              <!-- Deskripsi singkat -->
               <p class="text-muted small mt-2">
                 <?= nl2br(htmlspecialchars(substr($row['deskripsi'], 0, 80))) ?>...
               </p>
@@ -76,6 +77,13 @@ $result = $koneksi->query($sql);
         </div>
       </div>
     <?php endif; ?>
+  </div>
+
+  <!-- Tombol kembali ke halaman utama (di bawah produk) -->
+  <div class="text-center mt-5">
+    <a href="index.php" class="btn btn-outline-secondary rounded-pill px-4 py-2">
+      ⬅️ Kembali ke Halaman Utama
+    </a>
   </div>
 </div>
 

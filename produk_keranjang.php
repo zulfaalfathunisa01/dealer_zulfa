@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 // Pastikan user sudah login
 if (!isset($_SESSION['id_pengguna'])) {
-    echo "<script>alert('Silakan login dulu, Cengenggg 💕'); window.location='login.php';</script>";
+    echo "<script>alert('Silakan login dulu'); window.location='login.php';</script>";
     exit;
 }
 $id_pengguna = intval($_SESSION['id_pengguna']);
