@@ -50,59 +50,59 @@ $data_profil = $query_profil->fetch_assoc();
     <!-- Avatar & Nama -->
     <div style="text-align:center; margin-bottom:20px;">
       <img src="avatar.png" alt="Avatar" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid #007bff;">
-      <h2 style="margin-top:10px; color:#007bff;"><?= htmlspecialchars($data_profil['nama'] ?? 'Tidak diketahui') ?></h2>
+      <h2 style="margin-top:10px; color:#007bff;"><?= htmlspecialchars($data_profil['nama_pengguna'] ?? 'Tidak diketahui') ?></h2>
     </div>
 
     <!-- Info Profil -->
-    <div style="display:flex; flex-direction:column; gap:12px;">
-
-      <div style="display:flex; align-items:center;">
-        <span style="margin-right:10px; font-size:20px;">📧</span>
-        <span><strong>Email:</strong> <?= htmlspecialchars($data_profil['email'] ?? '-') ?></span>
+    <div id="profil-view">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div><strong>Email:</strong> <?= htmlspecialchars($data_profil['email'] ?? '-') ?></div>
+        <div><strong>Telepon:</strong> <?= htmlspecialchars($data_profil['no_hp'] ?? '-') ?></div>
+        <div><strong>Alamat:</strong> <?= htmlspecialchars($data_profil['alamat'] ?? '-') ?></div>
       </div>
 
-      <div style="display:flex; align-items:center;">
-        <span style="margin-right:10px; font-size:20px;">📞</span>
-        <span><strong>Telepon:</strong> <?= htmlspecialchars($data_profil['telepon'] ?? '-') ?></span>
-      </div>
-
-      <div style="display:flex; align-items:center;">
-        <span style="margin-right:10px; font-size:20px;">📅</span>
-        <span><strong>Tanggal Daftar:</strong> <?= isset($data_profil['tanggal_daftar']) ? date('d F Y', strtotime($data_profil['tanggal_daftar'])) : '-' ?></span>
+      <div style="text-align:center; margin-top:20px;">
+        <button id="editBtn" style="background:#007bff; color:#fff; padding:10px 20px; border:none; border-radius:8px; font-weight:bold;">✏️ Edit Profil</button>
       </div>
     </div>
 
-    <!-- Tombol Edit -->
-    <div style="text-align:center; margin-top:20px;">
-      <a href="edit_profil.php" style="text-decoration:none; background:#007bff; color:#fff; padding:10px 20px; border-radius:8px; font-weight:bold; transition:0.2s;">✏️ Edit Profil</a>
-    </div>
-
+    <!-- Form Edit (disembunyikan dulu) -->
+    <form id="profil-edit" action="" method="post" style="display:none;">
+      <div class="mb-3">
+        <label>Nama</label>
+        <input type="text" name="nama_pengguna" value="<?= htmlspecialchars($data_profil['nama_pengguna'] ?? '') ?>" required class="form-control">
+      </div>
+      <div class="mb-3">
+        <label>Email</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($data_profil['email'] ?? '') ?>" required class="form-control">
+      </div>
+      <div class="mb-3">
+        <label>Telepon</label>
+        <input type="text" name="no_hp" value="<?= htmlspecialchars($data_profil['no_hp'] ?? '') ?>" required class="form-control">
+      </div>
+      <div class="mb-3">
+        <label>Alamat</label>
+        <textarea name="alamat" rows="3" class="form-control"><?= htmlspecialchars($data_profil['alamat'] ?? '') ?></textarea>
+      </div>
+      <div style="text-align:center;">
+        <button type="submit" name="simpan" style="background:#007bff; color:white; border:none; padding:10px 20px; border-radius:8px;">💾 Simpan</button>
+        <button type="button" id="batalBtn" style="background:#ccc; color:#000; border:none; padding:10px 20px; border-radius:8px;">❌ Batal</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<style>
-/* Hover effect tombol */
-a[href="edit_profil.php"]:hover {
-  background: #0056b3;
-}
+<script>
+document.getElementById("editBtn").addEventListener("click", function() {
+  document.getElementById("profil-view").style.display = "none";
+  document.getElementById("profil-edit").style.display = "block";
+});
 
-/* Responsive untuk mobile */
-@media (max-width: 576px) {
-  .card {
-    padding: 20px;
-    margin: 15px;
-  }
-
-  img {
-    width: 80px !important;
-    height: 80px !important;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-}
-</style>
+document.getElementById("batalBtn").addEventListener("click", function() {
+  document.getElementById("profil-edit").style.display = "none";
+  document.getElementById("profil-view").style.display = "block";
+});
+</script>
 
 
 
@@ -351,6 +351,8 @@ $query_riwayat = $koneksi->query("
 
 
         <!-- isi -->
+
+        
       </div>
     </div>
 

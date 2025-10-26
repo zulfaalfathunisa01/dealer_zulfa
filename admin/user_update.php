@@ -1,3 +1,42 @@
+<?php
+include "../db/koneksi.php";
+
+// --- Ambil data user berdasarkan ID ---
+if (isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    $query = mysqli_query($koneksi, "SELECT * FROM pengguna WHERE id_pengguna = $id");
+
+    if (mysqli_num_rows($query) > 0) {
+        $user = mysqli_fetch_assoc($query);
+    } else {
+        echo "<script>alert('Data user tidak ditemukan!'); window.location='index.php?page=user';</script>";
+        exit;
+    }
+} else {
+    echo "<script>alert('ID user tidak ditemukan!'); window.location='index.php?page=user';</script>";
+    exit;
+}
+
+// --- Proses update ---
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nama   = mysqli_real_escape_string($koneksi, $_POST['nama_pengguna']);
+    $email  = mysqli_real_escape_string($koneksi, $_POST['email']);
+    $no_hp  = mysqli_real_escape_string($koneksi, $_POST['no_hp']);
+    $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+
+    $sql = "UPDATE pengguna 
+            SET nama_pengguna='$nama', email='$email', no_hp='$no_hp', alamat='$alamat' 
+            WHERE id_pengguna=$id";
+
+    if (mysqli_query($koneksi, $sql)) {
+        echo "<script>alert('Data user berhasil diperbarui!'); window.location='index.php?page=user';</script>";
+        exit;
+    } else {
+        echo "❌ Error: " . mysqli_error($koneksi);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -8,11 +47,16 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #f0f4f8;
-      height: 100vh;
       margin: 0;
+      padding: 0;
+    }
+
+    /* ✅ Pusatkan card di layar */
+    .center-wrapper {
       display: flex;
       justify-content: center;
-      align-items: center; /* ✅ ini biar card di tengah vertikal & horizontal */
+      align-items: center;
+      min-height: 100vh;
     }
 
     .edit-card {
@@ -21,8 +65,9 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 420px;
-      max-width: 90%; /* ✅ biar tetap bagus di HP */
+      max-width: 90%;
       text-align: left;
+      animation: fadeIn 0.4s ease;
     }
 
     h2 {
@@ -48,9 +93,7 @@
       box-sizing: border-box;
     }
 
-    textarea {
-      resize: vertical;
-    }
+    textarea { resize: vertical; }
 
     .btn-container {
       text-align: center;
@@ -68,9 +111,7 @@
       transition: background 0.3s ease;
     }
 
-    .btn-submit:hover {
-      background: #0b5ed7;
-    }
+    .btn-submit:hover { background: #0b5ed7; }
 
     .back-btn {
       display: inline-block;
@@ -80,41 +121,50 @@
       font-weight: 500;
     }
 
-    .back-btn:hover {
-      text-decoration: underline;
+    .back-btn:hover { text-decoration: underline; }
+
+    /* ✨ Animasi lembut */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <div class="edit-card">
-    <h2>Edit Data User</h2>
-    <form action="" method="post">
-      <div class="mb-3">
-        <label for="nama_pengguna">Nama Lengkap</label>
-        <input type="text" id="nama_pengguna" name="nama_pengguna" value="<?= htmlspecialchars($user['nama_pengguna']) ?>" required>
-      </div>
+  <div class="center-wrapper">
+    <div class="edit-card">
+      <h2>Edit Data User</h2>
+      <form action="" method="post">
+        <div class="mb-3">
+          <label for="nama_pengguna">Nama Lengkap</label>
+          <input type="text" id="nama_pengguna" name="nama_pengguna" 
+                value="<?= htmlspecialchars($user['nama_pengguna'] ?? '') ?>" required>
+        </div>
 
-      <div class="mb-3">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
-      </div>
+        <div class="mb-3">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" 
+                value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+        </div>
 
-      <div class="mb-3">
-        <label for="no_hp">Nomor HP</label>
-        <input type="text" id="no_hp" name="no_hp" value="<?= htmlspecialchars($user['no_hp']) ?>" required>
-      </div>
+        <div class="mb-3">
+          <label for="no_hp">Nomor HP</label>
+          <input type="text" id="no_hp" name="no_hp" 
+                value="<?= htmlspecialchars($user['no_hp'] ?? '') ?>" required>
+        </div>
 
-      <div class="mb-3">
-        <label for="alamat">Alamat</label>
-        <textarea id="alamat" name="alamat" rows="3" required><?= htmlspecialchars($user['alamat']) ?></textarea>
-      </div>
+        <div class="mb-3">
+          <label for="alamat">Alamat</label>
+          <textarea id="alamat" name="alamat" rows="3" required><?= htmlspecialchars($user['alamat'] ?? '') ?></textarea>
+        </div>
 
-      <div class="btn-container">
-        <button type="submit" class="btn-submit">Simpan Perubahan</button><br>
-        <a href="index.php?page=user" class="back-btn">⬅ Kembali ke Daftar User</a>
-      </div>
-    </form>
+        <div class="btn-container">
+          <button type="submit" class="btn-submit">Simpan Perubahan</button><br>
+          <a href="index.php?page=user" class="back-btn">⬅ Kembali ke Daftar User</a>
+        </div>
+      </form>
+    </div>
   </div>
 
 </body>

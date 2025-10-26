@@ -63,9 +63,15 @@ $result = $koneksi->query($sql);
                 <?= nl2br(htmlspecialchars(substr($row['deskripsi'], 0, 80))) ?>...
               </p>
 
-              <a href="produk_detail.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-primary rounded-pill px-4 mt-2">
-                Detail Produk
-              </a>
+              <!-- Tombol Aksi -->
+              <div class="d-flex justify-content-center gap-2 mt-3">
+                <a href="produk_detail.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-primary rounded-pill px-3">
+                  Detail
+                </a>
+                <a href="wishlist.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-danger rounded-pill px-3">
+                  ❤️ Wishlist
+                </a>
+              </div>
             </div>
           </div>
         </div>

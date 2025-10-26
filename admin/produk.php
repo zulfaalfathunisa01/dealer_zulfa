@@ -50,18 +50,18 @@ if (!$result) {
             <td class="d-flex gap-2 justify-content-center">
              <td class="d-flex gap-2 justify-content-center">
   <a href="index.php?page=produk_edit&id=<?= $row['id_produk'] ?>" class="btn btn-sm btn-warning">
-    <i class="bi bi-pencil"></i> Edit
+    <i class="bi bi-pencil"></i>
   </a>
   <a href="produk_delete.php?id=<?= $row['id_produk'] ?>" 
      class="btn btn-sm btn-primary" 
      onclick="return confirm('Yakin hapus produk ini?')">
-    <i class="bi bi-trash"></i> Hapus
+    <i class="bi bi-trash"></i>
   </a>
 
   <!-- 🛒 Tombol Tambah ke Keranjang -->
   <a href="keranjang_tambah.php?id=<?= $row['id_produk'] ?>" class="btn btn-sm btn-success">
-    <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
-  </a>
+    <i class="bi bi-cart-plus"></i> 
+</a>
 </td>
               </a>
             </td>
