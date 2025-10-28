@@ -5,9 +5,25 @@ include "header.php";
 
 $id_pengguna = $_SESSION['id_pengguna'];
 
+// Pastikan user sudah login
+if (!isset($_SESSION['id_pengguna'])) {
+  echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
+  exit;
+}
+
 // Ambil data profil
 $query_profil = $koneksi->query("SELECT * FROM pengguna WHERE id_pengguna = '$id_pengguna'");
 $data_profil = $query_profil->fetch_assoc();
+
+// Ambil inisial nama (misal "Zulfa Alfathunisa" → "ZA")
+function getInisial($nama) {
+  $nama = trim($nama);
+  $parts = explode(" ", $nama);
+  $inisial = strtoupper(substr($parts[0], 0, 1));
+  if (count($parts) > 1) $inisial .= strtoupper(substr(end($parts), 0, 1));
+  return $inisial;
+}
+$inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
 
 // Ambil wishlist
 // $query_wishlist = $koneksi->query("
@@ -44,13 +60,26 @@ $data_profil = $query_profil->fetch_assoc();
   <div class="tab-content" id="myTabContent">
 
     <!-- TAB PROFIL -->
-   <div class="tab-pane fade show active" id="profil" role="tabpanel">
-  <div class="card shadow-sm p-4" style="border-radius: 16px; max-width: 500px; margin: 20px auto; background: #ffffff;">
-    
+  <div class="tab-pane fade show active" id="profil" role="tabpanel">
+  <div class="card shadow-sm p-4" style="border-radius:16px; max-width:500px; margin:20px auto; background:#ffffff;">
+
     <!-- Avatar & Nama -->
     <div style="text-align:center; margin-bottom:20px;">
-      <img src="avatar.png" alt="Avatar" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid #007bff;">
-      <h2 style="margin-top:10px; color:#007bff;"><?= htmlspecialchars($data_profil['nama_pengguna'] ?? 'Tidak diketahui') ?></h2>
+      <?php if (!empty($data_profil['foto'])): ?>
+        <img src="uploads/<?= htmlspecialchars($data_profil['foto']) ?>" alt="Avatar"
+             style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid #007bff;">
+      <?php else: ?>
+        <div style="
+          width:100px; height:100px; border-radius:50%;
+          background:#007bff; color:white; font-size:36px;
+          display:flex; align-items:center; justify-content:center;
+          margin:0 auto; font-weight:bold;">
+          <?= $inisial ?>
+        </div>
+      <?php endif; ?>
+      <h2 style="margin-top:10px; color:#007bff;">
+        <?= htmlspecialchars($data_profil['nama_pengguna'] ?? 'Tidak diketahui') ?>
+      </h2>
     </div>
 
     <!-- Info Profil -->
@@ -66,8 +95,8 @@ $data_profil = $query_profil->fetch_assoc();
       </div>
     </div>
 
-    <!-- Form Edit (disembunyikan dulu) -->
-    <form id="profil-edit" action="" method="post" style="display:none;">
+    <!-- Form Edit -->
+    <form id="profil-edit" action="" method="post" style="display:none;" enctype="multipart/form-data">
       <div class="mb-3">
         <label>Nama</label>
         <input type="text" name="nama_pengguna" value="<?= htmlspecialchars($data_profil['nama_pengguna'] ?? '') ?>" required class="form-control">
@@ -83,6 +112,10 @@ $data_profil = $query_profil->fetch_assoc();
       <div class="mb-3">
         <label>Alamat</label>
         <textarea name="alamat" rows="3" class="form-control"><?= htmlspecialchars($data_profil['alamat'] ?? '') ?></textarea>
+      </div>
+      <div class="mb-3">
+        <label>Foto Profil</label>
+        <input type="file" name="foto" class="form-control">
       </div>
       <div style="text-align:center;">
         <button type="submit" name="simpan" style="background:#007bff; color:white; border:none; padding:10px 20px; border-radius:8px;">💾 Simpan</button>
@@ -103,7 +136,6 @@ document.getElementById("batalBtn").addEventListener("click", function() {
   document.getElementById("profil-view").style.display = "block";
 });
 </script>
-
 
 
       <!-- TAB WISHLIST -->
