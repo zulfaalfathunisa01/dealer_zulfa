@@ -52,13 +52,19 @@ $result = $koneksi->query("SELECT * FROM merk ORDER BY id_merk DESC");
             <td><?= htmlspecialchars($row['nama_merk']) ?></td>
             <td>
               <div class="d-flex gap-1">
-                <a href="index.php?page=merk_update&id=<?= $row['id_merk'] ?>" class="btn btn-sm btn-warning">
-                  <i class="bi bi-pencil"></i> Edit
+                <a href="index.php?page=merk_update&id=<?= $row['id_merk'] ?>"
+                  class="btn btn-sm btn-warning d-flex align-items-center justify-content-center"
+                  title="Edit Merk"
+                  style="border-radius: 8px; width: 35px; height: 35px;">
+                  <i class="bi bi-pencil-square fs-5"></i>
                 </a>
+
                 <a href="index.php?page=merk&hapus=<?= $row['id_merk'] ?>"
-                   class="btn btn-sm btn-danger"
-                   onclick="return confirm('Yakin hapus merk ini?')">
-                   <i class="bi bi-trash"></i> Hapus
+                  class="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                  title="Hapus Merk"
+                  style="border-radius: 8px; width: 35px; height: 35px;"
+                  onclick="return confirm('Yakin hapus merk ini?')">
+                  <i class="bi bi-trash3 fs-5"></i>
                 </a>
               </div>
             </td>

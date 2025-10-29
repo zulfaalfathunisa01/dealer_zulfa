@@ -16,7 +16,8 @@ include "db/koneksi.php";
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="index.php"></a>
+    <!-- Brand yang bisa diklik kembali ke beranda -->
+    <a class="navbar-brand fw-bold" href="index.php">Zulforce</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
@@ -24,7 +25,6 @@ include "db/koneksi.php";
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-
         <!-- 🔍 Form Pencarian -->
         <li class="nav-item me-3">
           <form class="d-flex" role="search" method="GET" action="index.php">
@@ -76,6 +76,7 @@ include "db/koneksi.php";
     </div>
   </div>
 </nav>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

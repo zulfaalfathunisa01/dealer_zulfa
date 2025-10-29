@@ -64,13 +64,19 @@ $result = $koneksi->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC");
             <td><?= htmlspecialchars($row['alamat']) ?></td>
             <td>
               <div class="d-flex justify-content-center gap-1">
-                <a href="index.php?page=user_update&id=<?= $row['id_pengguna'] ?>" class="btn btn-sm btn-warning">
-                  <i class="bi bi-pencil"></i> Edit
+                <a href="index.php?page=user_update&id=<?= $row['id_pengguna'] ?>"
+                  class="btn btn-sm btn-warning d-flex align-items-center justify-content-center"
+                  title="Edit User"
+                  style="border-radius: 8px; width: 35px; height: 35px;">
+                  <i class="bi bi-pencil fs-5"></i>
                 </a>
-                <a href="index.php?page=user&hapus=<?= $row['id_pengguna'] ?>" 
-                   class="btn btn-sm btn-danger" 
-                   onclick="return confirm('Yakin hapus user ini?')">
-                   <i class="bi bi-trash"></i> Hapus
+
+                <a href="index.php?page=user&hapus=<?= $row['id_pengguna'] ?>"
+                  class="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                  title="Hapus User"
+                  style="border-radius: 8px; width: 35px; height: 35px;"
+                  onclick="return confirm('Yakin hapus user ini?')">
+                  <i class="bi bi-trash fs-5"></i>
                 </a>
               </div>
             </td>

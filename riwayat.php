@@ -5,145 +5,129 @@ include "db/koneksi.php";
 date_default_timezone_set('Asia/Jakarta');
 
 if (!isset($_SESSION['id_pengguna'])) {
-  echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
-  exit;
+    echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
+    exit;
 }
 
 $id_pengguna = $_SESSION['id_pengguna'];
 
-$query = "
-  SELECT t.id_transaksi, t.tanggal_transaksi, t.total_harga, t.status
-  FROM transaksi t
-  WHERE t.pengguna_id = '$id_pengguna'
-  ORDER BY t.tanggal_transaksi DESC
-";
-$result = $koneksi->query($query);
+// Ambil riwayat transaksi beserta nama pengguna
+$query_riwayat = $koneksi->query("
+    SELECT t.id_transaksi, t.tanggal_transaksi, t.total_harga, t.status,
+           u.nama_pengguna
+    FROM transaksi t
+    JOIN pengguna u ON t.pengguna_id = u.id_pengguna
+    WHERE t.pengguna_id = '$id_pengguna'
+    ORDER BY t.tanggal_transaksi DESC
+");
 ?>
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Riwayat Pesanan Saya</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background: #f8f9fa;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      height: 100vh; /* biar penuh layar */
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Header tetap di atas */
-    .header-riwayat {
-      position: sticky;
-      top: 0;
-      background: #ffffff;
-      z-index: 10;
-      padding: 20px 0;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .header-riwayat h2 {
-      color: #007bff;
-      margin: 0;
-    }
-
-    /* Area konten bisa scroll */
-    .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      max-height: calc(100vh - 120px); /* biar gak tembus ke bawah */
-    }
-
-    .order-item {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 15px;
-      margin-bottom: 15px;
-      transition: transform 0.2s ease;
-    }
-
-    .order-item:hover {
-      transform: scale(1.01);
-    }
-
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-
-    .badge {
-      padding: 6px 10px;
-      border-radius: 6px;
-      color: #fff;
-      font-size: 13px;
-    }
-    .bg-warning { background: #ffc107; color: #000; }
-    .bg-info { background: #0dcaf0; color: #000; }
-    .bg-success { background: #28a745; }
-    .bg-danger { background: #dc3545; }
-
-    .btn-detail {
-      background: #007bff;
-      color: white;
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    .btn-detail:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
-
-<div class="header-riwayat">
-  <h2>📜 Riwayat Pesanan Saya</h2>
-</div>
-
-<div class="scroll-area container">
-  <?php if ($result->num_rows > 0): ?>
-    <?php while ($row = $result->fetch_assoc()): ?>
-      <div class="order-item">
-        <div class="order-header">
-          <span><b>ID Transaksi:</b> <?= $row['id_transaksi'] ?></span>
-          <span><?= date('l, d-m-Y H:i:s', strtotime($row['tanggal_transaksi'])) ?> WIB</span>
-        </div>
-        <div class="order-body d-flex justify-content-between align-items-center">
-          <div>
-            <p><b>Total Harga:</b> Rp <?= number_format($row['total_harga'], 0, ',', '.') ?></p>
-            <p>
-              <b>Status:</b>
-              <?php if ($row['status'] == 'proses'): ?>
-                <span class="badge bg-warning">Proses</span>
-              <?php elseif ($row['status'] == 'kirim'): ?>
-                <span class="badge bg-info">Dikirim</span>
-              <?php elseif ($row['status'] == 'selesai'): ?>
-                <span class="badge bg-success">Selesai</span>
-              <?php else: ?>
-                <span class="badge bg-danger">Batal</span>
-              <?php endif; ?>
+<div class="tab-pane fade" id="riwayat" role="tabpanel">
+  <div class="scroll-area">
+    <?php if ($query_riwayat && $query_riwayat->num_rows > 0): ?>
+      <?php while ($row = $query_riwayat->fetch_assoc()): ?>
+        <div class="order-item">
+          <div class="order-header d-flex justify-content-between align-items-center">
+            <div>
+              <span><b>ID:</b> <?= $row['id_transaksi'] ?></span> | 
+              <span><b>Nama:</b> <?= htmlspecialchars($row['nama_pengguna']) ?></span> | 
+              <span><?= date('d-m-Y H:i', strtotime($row['tanggal_transaksi'])) ?> WIB</span>
+            </div>
+            <button class="btn btn-sm btn-primary toggle-detail">Detail</button>
+          </div>
+          <div class="order-detail" style="display:none; margin-top:10px; padding:10px; background:#f1f1f1; border-radius:8px;">
+            <?php
+              // Ambil detail transaksi
+              $id_transaksi = $row['id_transaksi'];
+              $detail_q = $koneksi->query("
+                  SELECT p.nama_produk, p.harga, td.jumlah
+                  FROM transaksi_detail td
+                  JOIN produk p ON td.produk_id = p.id_produk
+                  WHERE td.transaksi_id = '$id_transaksi'
+              ");
+            ?>
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th>Harga</th>
+                  <th>Jumlah</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while($det = $detail_q->fetch_assoc()): ?>
+                  <tr>
+                    <td><?= htmlspecialchars($det['nama_produk']) ?></td>
+                    <td>Rp <?= number_format($det['harga'],0,',','.') ?></td>
+                    <td><?= $det['jumlah'] ?></td>
+                    <td>Rp <?= number_format($det['harga'] * $det['jumlah'],0,',','.') ?></td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+            <p class="mt-2"><b>Total Harga:</b> Rp <?= number_format($row['total_harga'],0,',','.') ?></p>
+            <p><b>Status:</b> 
+              <?php
+                switch($row['status']){
+                    case 'proses': echo '<span class="badge bg-warning">Proses</span>'; break;
+                    case 'kirim': echo '<span class="badge bg-info">Dikirim</span>'; break;
+                    case 'selesai': echo '<span class="badge bg-success">Selesai</span>'; break;
+                    default: echo '<span class="badge bg-danger">Batal</span>';
+                }
+              ?>
             </p>
           </div>
-          <a href="riwayat_detail.php?id=<?= $row['id_transaksi'] ?>" class="btn-detail">Lihat Detail</a>
         </div>
-      </div>
-    <?php endwhile; ?>
-  <?php else: ?>
-    <p style="text-align:center; font-size:16px; margin-top:20px;">Belum ada pesanan yang kamu buat 💔</p>
-  <?php endif; ?>
+      <?php endwhile; ?>
+    <?php else: ?>
+      <p class="text-center text-muted mt-3">Belum ada transaksi 💔</p>
+    <?php endif; ?>
+  </div>
 </div>
 
-<?php include "footer.php"; ?>
+<style>
+.scroll-area {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.order-item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.order-header button {
+  border-radius:6px;
+  padding:4px 8px;
+  font-size:13px;
+}
+
+.order-detail table th, .order-detail table td {
+  font-size:14px;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+}
+.bg-warning { background: #ffc107; color: #000; }
+.bg-info { background: #0dcaf0; color: #000; }
+.bg-success { background: #28a745; }
+.bg-danger { background: #dc3545; }
+</style>
+
+<script>
+document.querySelectorAll(".toggle-detail").forEach(btn => {
+  btn.addEventListener("click", function() {
+    const detail = this.closest(".order-item").querySelector(".order-detail");
+    detail.style.display = (detail.style.display === "none") ? "block" : "none";
+  });
+});
+</script>
