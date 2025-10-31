@@ -133,9 +133,4 @@ $res = $q->get_result();
     </div>
   </form>
 
-  <div class="text-center mt-5">
-    <a href="index.php" class="btn btn-outline-secondary px-4 py-2 rounded-pill">⬅️ Kembali ke Beranda</a>
-  </div>
-</div>
-
 <?php include "footer.php"; ?>

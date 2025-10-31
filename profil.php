@@ -139,181 +139,209 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
     </script>
 
     <!-- TAB WISHLIST -->
-    <div class="tab-pane fade" id="wishlist" role="tabpanel">
-      <?php
-      // Pastikan user login
-      if (!isset($_SESSION['id_pengguna'])) {
-        echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
-        exit;
+   <div class="tab-pane fade" id="wishlist" role="tabpanel">
+  <?php
+  include "db/koneksi.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+  // Pastikan user login
+  if (!isset($_SESSION['id_pengguna'])) {
+    echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
+    exit;
+  }
+
+  $id_pengguna = $_SESSION['id_pengguna'];
+
+  // =====================================================
+  // 🔹 HAPUS PRODUK DARI WISHLIST
+  // =====================================================
+  if (isset($_GET['hapus'])) {
+    $id_wishlist = intval($_GET['hapus']);
+    $hapus = $koneksi->query("DELETE FROM wishlist WHERE id_wishlist = $id_wishlist AND id_pengguna = $id_pengguna");
+
+    if ($hapus) {
+      echo "<script>
+              alert('Produk berhasil dihapus dari wishlist!');
+              window.location='profil.php#wishlist';
+            </script>";
+      exit;
+    } else {
+      echo "<script>alert('Gagal menghapus wishlist!');</script>";
+    }
+  }
+
+  // =====================================================
+  // 🔹 TAMBAH PRODUK KE WISHLIST
+  // =====================================================
+  if (isset($_GET['id'])) {
+    $id_produk = intval($_GET['id']);
+    $cek = $koneksi->query("SELECT * FROM wishlist WHERE id_pengguna = $id_pengguna AND id_produk = $id_produk");
+
+    if ($cek->num_rows > 0) {
+      echo "<script>alert('Produk ini sudah ada di wishlist kamu!'); window.location='profil.php#wishlist';</script>";
+    } else {
+      $sql = "INSERT INTO wishlist (id_pengguna, id_produk, tanggal_ditambahkan) VALUES ($id_pengguna, $id_produk, NOW())";
+      if ($koneksi->query($sql)) {
+        echo "<script>alert('Produk berhasil ditambahkan ke wishlist!'); window.location='profil.php#wishlist';</script>";
+      } else {
+        echo "<script>alert('Gagal menambahkan produk ke wishlist.'); window.location='profil.php#wishlist';</script>";
       }
+    }
+  }
 
-      $id_pengguna = $_SESSION['id_pengguna'];
-
-      // Tambah ke wishlist
-      if (isset($_GET['id'])) {
-        $id_produk = intval($_GET['id']);
-        $cek = $koneksi->query("SELECT * FROM wishlist WHERE id_pengguna = $id_pengguna AND id_produk = $id_produk");
-        if ($cek->num_rows > 0) {
-          echo "<script>alert('Produk ini sudah ada di wishlist kamu!'); window.location='profil.php#wishlist';</script>";
-        } else {
-          $sql = "INSERT INTO wishlist (id_wishlist, id_pengguna, id_produk, tanggal_ditambahkan) VALUES ($id_wishlist$id_pengguna, $id_produk, NOW())";
-          if ($koneksi->query($sql)) {
-            echo "<script>alert('Produk berhasil ditambahkan ke wishlist!'); window.location='profil.php#wishlist';</script>";
-          } else {
-            echo "<script>alert('Gagal menambahkan produk ke wishlist.'); window.location='profil.php#wishlist';</script>";
-          }
-        }
-      }
-
-      // Ambil data wishlist
-      $wishlist = $koneksi->query("
-      SELECT w.id_wishlist, p.id_produk, p.nama_produk, p.harga, p.photo, w.tanggal_ditambahkan 
-      FROM wishlist w
-      JOIN produk p ON w.id_produk = p.id_produk
-      WHERE w.id_pengguna = $id_pengguna
-      ORDER BY w.tanggal_ditambahkan DESC
+  // =====================================================
+  // 🔹 AMBIL DATA WISHLIST USER
+  // =====================================================
+  $wishlist = $koneksi->query("
+    SELECT w.id_wishlist, p.id_produk, p.nama_produk, p.harga, p.photo, w.tanggal_ditambahkan 
+    FROM wishlist w
+    JOIN produk p ON w.id_produk = p.id_produk
+    WHERE w.id_pengguna = $id_pengguna
+    ORDER BY w.tanggal_ditambahkan DESC
   ");
-      ?>
+  ?>
 
-      <style>
-        .wishlist-container {
-          padding: 30px 10px;
-          background-color: #f8faff;
-          border-radius: 10px;
-          min-height: 400px;
-        }
+  <style>
+    .wishlist-container {
+      padding: 30px 10px;
+      background-color: #f8faff;
+      border-radius: 10px;
+      min-height: 400px;
+    }
 
-        .wishlist-title {
-          text-align: center;
-          font-size: 1.7rem;
-          color: #007bff;
-          font-weight: 700;
-          margin-bottom: 25px;
-        }
+    .wishlist-title {
+      text-align: center;
+      font-size: 1.7rem;
+      color: #007bff;
+      font-weight: 700;
+      margin-bottom: 25px;
+    }
 
-        .wishlist-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 20px;
-        }
+    .wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
 
-        .wishlist-card {
-          background: #fff;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          overflow: hidden;
-          transition: all 0.25s ease;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
+    .wishlist-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .wishlist-card:hover {
-          transform: scale(1.02);
-          box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-        }
+    .wishlist-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
 
-        .wishlist-card img {
-          width: 100%;
-          height: 180px;
-          object-fit: cover;
-        }
+    .wishlist-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
 
-        .wishlist-card-body {
-          padding: 15px;
-        }
+    .wishlist-card-body {
+      padding: 15px;
+    }
 
-        .wishlist-card-body h5 {
-          color: #007bff;
-          font-size: 18px;
-          margin-bottom: 8px;
-        }
+    .wishlist-card-body h5 {
+      color: #007bff;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
 
-        .wishlist-card-body p {
-          color: green;
-          font-weight: bold;
-          font-size: 16px;
-          margin: 0;
-        }
+    .wishlist-card-body p {
+      color: green;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 0;
+    }
 
-        .wishlist-buttons {
-          display: flex;
-          justify-content: space-around;
-          padding: 12px 10px;
-          background-color: #f1f5fb;
-        }
+    .wishlist-buttons {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 10px;
+      background-color: #f1f5fb;
+    }
 
-        .wishlist-buttons a {
-          text-decoration: none;
-          color: #fff;
-          padding: 7px 12px;
-          border-radius: 6px;
-          font-size: 13px;
-          transition: background 0.2s ease;
-          font-weight: 600;
-        }
+    .wishlist-buttons a {
+      text-decoration: none;
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: background 0.2s ease;
+      font-weight: 600;
+    }
 
-        .btn-keranjang {
-          background: #28a745;
-        }
+    .btn-keranjang {
+      background: #28a745;
+    }
 
-        .btn-keranjang:hover {
-          background: #218838;
-        }
+    .btn-keranjang:hover {
+      background: #218838;
+    }
 
-        .btn-checkout {
-          background: #007bff;
-        }
+    .btn-checkout {
+      background: #007bff;
+    }
 
-        .btn-checkout:hover {
-          background: #0062cc;
-        }
+    .btn-checkout:hover {
+      background: #0062cc;
+    }
 
-        .btn-hapus {
-          background: #dc3545;
-        }
+    .btn-hapus {
+      background: #dc3545;
+    }
 
-        .btn-hapus:hover {
-          background: #c82333;
-        }
+    .btn-hapus:hover {
+      background: #c82333;
+    }
 
-        .empty-wishlist {
-          text-align: center;
-          color: #777;
-          font-size: 16px;
-          margin-top: 40px;
-        }
-      </style>
+    .empty-wishlist {
+      text-align: center;
+      color: #777;
+      font-size: 16px;
+      margin-top: 40px;
+    }
+  </style>
 
-      <div class="wishlist-container">
-        <h3 class="wishlist-title">💖 Wishlist Kamu</h3>
+  <div class="wishlist-container">
+    <h3 class="wishlist-title">💖 Wishlist Kamu</h3>
 
-        <?php if ($wishlist->num_rows > 0): ?>
-          <div class="wishlist-grid">
-            <?php while ($row = $wishlist->fetch_assoc()): ?>
-              <div class="wishlist-card">
-                <img src="admin/<?= htmlspecialchars($row['photo']) ?>" alt="<?= htmlspecialchars($row['nama_produk']) ?>">
-                <div class="wishlist-card-body">
-                  <h5><?= htmlspecialchars($row['nama_produk']) ?></h5>
-                  <p>Rp <?= number_format($row['harga'], 0, ',', '.') ?></p>
-                </div>
-                <div class="wishlist-buttons">
-                  <a href="produk_keranjang.php?id=<?= $row['id_produk'] ?>" class="btn-keranjang">+ Keranjang</a>
-                  <a href="checkout.php?id=<?= $row['id_produk'] ?>" class="btn-checkout">Checkout</a>
-                  <a href="wishlist.php?id=<?= $row['id_wishlist'] ?>"
-                    class="btn-hapus"
-                    onclick="return confirm('Yakin ingin menghapus dari wishlist?')">
-                    Hapus
-                  </a>
-                </div>
-              </div>
-            <?php endwhile; ?>
+    <?php if ($wishlist->num_rows > 0): ?>
+      <div class="wishlist-grid">
+        <?php while ($row = $wishlist->fetch_assoc()): ?>
+          <div class="wishlist-card">
+            <img src="admin/<?= htmlspecialchars($row['photo']) ?>" alt="<?= htmlspecialchars($row['nama_produk']) ?>">
+            <div class="wishlist-card-body">
+              <h5><?= htmlspecialchars($row['nama_produk']) ?></h5>
+              <p>Rp <?= number_format($row['harga'], 0, ',', '.') ?></p>
+            </div>
+            <div class="wishlist-buttons">
+<a href="produk_keranjang.php?id=<?= $row['id_produk'] ?>" class="btn-keranjang">+ Keranjang</a>
+              <a href="checkout.php?id=<?= $row['id_produk'] ?>" class="btn-checkout">Checkout</a>
+              <a href="profil.php?hapus=<?= $row['id_wishlist'] ?>#wishlist"
+                class="btn-hapus"
+                onclick="return confirm('Yakin ingin menghapus dari wishlist?')">
+                Hapus
+              </a>
+            </div>
           </div>
-        <?php else: ?>
-          <p class="empty-wishlist">Belum ada produk di wishlist kamu 💔</p>
-        <?php endif; ?>
+        <?php endwhile; ?>
       </div>
-    </div>
+    <?php else: ?>
+      <p class="empty-wishlist">Belum ada produk di wishlist kamu 💔</p>
+    <?php endif; ?>
+  </div>
+</div>
 
 
 
