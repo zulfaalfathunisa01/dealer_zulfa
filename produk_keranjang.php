@@ -110,7 +110,7 @@ $res = $q->get_result();
             </td>
             <td>Rp <?= number_format($subtotal, 0, ',', '.') ?></td>
             <td>
-              <a href="?hapus=<?= $row['id_keranjang'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin mau hapus produk ini, Cengenggg? 😢')">🗑️</a>
+              <a href="?hapus=<?= $row['id_keranjang'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin mau hapus produk ini?')">🗑️</a>
             </td>
           </tr>
           <?php endwhile; ?>
