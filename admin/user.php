@@ -3,22 +3,36 @@ include "../db/koneksi.php";
 
 // Tambah user baru
 if (isset($_POST['simpan'])) {
-  $nama = $_POST['nama_pengguna'];
-  $email = $_POST['email'];
-  $no_hp = $_POST['no_hp'];
-  $alamat = $_POST['alamat'];
+  $nama = trim($_POST['nama_pengguna']);
+  $email = trim($_POST['email']);
+  $no_hp = trim($_POST['no_hp']);
+  $alamat = trim($_POST['alamat']);
 
-  $sql = "INSERT INTO pengguna (nama_pengguna, email, no_hp, alamat) 
-          VALUES ('$nama', '$email', '$no_hp', '$alamat')";
-  if ($koneksi->query($sql)) {
-    header("Location:index.php?page=user");
-    exit;
+  // 🔹 Cek apakah email sudah digunakan
+  $cek = $koneksi->prepare("SELECT * FROM pengguna WHERE email = ?");
+  $cek->bind_param("s", $email);
+  $cek->execute();
+  $hasil = $cek->get_result();
+
+  if ($hasil->num_rows > 0) {
+    echo "<script>alert('Email \"$email\" sudah terdaftar!'); window.location='index.php?page=user';</script>";
   } else {
-    echo "<div class='alert alert-danger'>Gagal menambahkan user: " . $koneksi->error . "</div>";
+    // Jika belum ada, tambahkan user baru
+    $sql = $koneksi->prepare("INSERT INTO pengguna (nama_pengguna, email, no_hp, alamat) VALUES (?, ?, ?, ?)");
+    $sql->bind_param("ssss", $nama, $email, $no_hp, $alamat);
+
+    if ($sql->execute()) {
+      header("Location:index.php?page=user");
+      exit;
+    } else {
+      echo "<div class='alert alert-danger'>Gagal menambahkan user: " . $koneksi->error . "</div>";
+    }
   }
+
+  $cek->close();
 }
 
-// Proses hapus user
+// 🔹 Proses hapus user
 if (isset($_GET['hapus'])) {
   $id = intval($_GET['hapus']);
   $sql = "DELETE FROM pengguna WHERE id_pengguna=$id";
@@ -29,9 +43,10 @@ if (isset($_GET['hapus'])) {
   }
 }
 
-// Ambil data user
+// 🔹 Ambil data user
 $result = $koneksi->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC");
 ?>
+
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2>Daftar User</h2>

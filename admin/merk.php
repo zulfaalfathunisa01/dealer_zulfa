@@ -2,17 +2,33 @@
 include "../db/koneksi.php";
 
 if (isset($_POST['simpan'])) {
-  $nama_merk = $_POST['nama_merk'];
-  $sql = "INSERT INTO merk (nama_merk) VALUES ('$nama_merk')";
-  if ($koneksi->query($sql)) {
-    header("Location:index.php?page=merk");
-    exit;
+  $nama_merk = trim($_POST['nama_merk']);
+
+  // 🔹 Cek apakah merk sudah ada
+  $cek = $koneksi->prepare("SELECT * FROM merk WHERE nama_merk = ?");
+  $cek->bind_param("s", $nama_merk);
+  $cek->execute();
+  $hasil = $cek->get_result();
+
+  if ($hasil->num_rows > 0) {
+    // Jika merk sudah ada
+    echo "<script>alert('Merk \"$nama_merk\" sudah ada!'); window.location='index.php?page=merk';</script>";
   } else {
-    echo "Gagal menambahkan merk: " . $koneksi->error;
+    // Jika belum ada, tambahkan
+    $sql = $koneksi->prepare("INSERT INTO merk (nama_merk) VALUES (?)");
+    $sql->bind_param("s", $nama_merk);
+
+    if ($sql->execute()) {
+      header("Location:index.php?page=merk");
+      exit;
+    } else {
+      echo "Gagal menambahkan merk: " . $koneksi->error;
+    }
   }
+  $cek->close();
 }
 
-// Proses hapus merk
+// 🔹 Proses hapus merk
 if (isset($_GET['hapus'])) {
   $id = intval($_GET['hapus']);
   $sql = "DELETE FROM merk WHERE id_merk=$id";
@@ -25,6 +41,7 @@ if (isset($_GET['hapus'])) {
 
 $result = $koneksi->query("SELECT * FROM merk ORDER BY id_merk DESC");
 ?>
+
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2>Daftar Merk</h2>
