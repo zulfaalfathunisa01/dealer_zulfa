@@ -68,9 +68,6 @@ $result = $koneksi->query($sql);
                 <a href="produk_detail.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-primary rounded-pill px-3">
                   Detail
                 </a>
-                <a href="wishlist.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-danger rounded-pill px-3">
-                  ❤️ Wishlist
-                </a>
               </div>
             </div>
           </div>
@@ -84,13 +81,5 @@ $result = $koneksi->query($sql);
       </div>
     <?php endif; ?>
   </div>
-
-  <!-- Tombol kembali ke halaman utama (di bawah produk) -->
-  <div class="text-center mt-5">
-    <a href="index.php" class="btn btn-outline-secondary rounded-pill px-4 py-2">
-      ⬅️ Kembali ke Halaman Utama
-    </a>
-  </div>
-</div>
 
 <?php include "footer.php"; ?>
