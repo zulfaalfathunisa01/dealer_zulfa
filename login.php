@@ -1,5 +1,4 @@
 <?php
-$page_title = "Login - My Website";
 include 'header.php';
 include 'db/koneksi.php';
 
@@ -49,7 +48,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
+          <div class="input-group">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password" required>
+            <span class="input-group-text bg-white" style="cursor: pointer;" id="togglePassword">
+              <i class="bi bi-eye" id="icon-eye"></i>
+            </span>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Login</button>
@@ -63,5 +67,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
   </div>
 </div>
+
+<!-- Script untuk toggle password -->
+<script>
+document.getElementById('togglePassword').addEventListener('click', function() {
+  const passwordInput = document.getElementById('password');
+  const icon = document.getElementById('icon-eye');
+
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    icon.classList.remove('bi-eye');
+    icon.classList.add('bi-eye-slash');
+  } else {
+    passwordInput.type = 'password';
+    icon.classList.remove('bi-eye-slash');
+    icon.classList.add('bi-eye');
+  }
+});
+</script>
 
 <?php include 'footer.php'; ?>
