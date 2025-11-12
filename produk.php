@@ -30,45 +30,85 @@ if ($cari != '') {
 $result = $koneksi->query($sql);
 ?>
 
+<style>
+/* 🌟 Styling untuk kartu produk */
+.card-produk {
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+.card-produk:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+.card-produk img {
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 2px solid #f0f0f0;
+}
+.card-produk .card-body {
+  padding: 18px;
+}
+.card-produk h5 {
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+}
+.card-produk p {
+  margin: 3px 0;
+}
+.card-produk .harga {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #008037;
+}
+.btn-detail {
+  border-radius: 30px;
+  padding: 6px 18px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+.btn-detail:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+</style>
+
 <div class="container py-5">
   <div class="text-center mb-5">
-    <h2 class="fw-bold text-primary">Daftar Produk ZULFORCE</h2>
+    <h2 class="fw-bold text-primary">🛵 Daftar Produk <span class="text-dark">ZULFORCE</span></h2>
+    <p class="text-muted">Temukan motor impianmu di sini!</p>
   </div>
 
   <div class="row g-4">
     <?php if ($result->num_rows > 0): ?>
       <?php while($row = $result->fetch_assoc()): ?>
-        <div class="col-12 col-sm-6 col-md-4">
-          <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card card-produk h-100">
             <?php if (!empty($row['photo'])): ?>
               <img src="admin/<?= htmlspecialchars($row['photo']) ?>" 
-                   class="card-img-top" 
-                   style="height:250px; object-fit:cover;" 
-                   alt="<?= htmlspecialchars($row['nama_produk']) ?>">
+                   alt="<?= htmlspecialchars($row['nama_produk']) ?>" 
+                   class="card-img-top">
             <?php else: ?>
               <img src="no-image.png" 
-                   class="card-img-top" 
-                   style="height:250px; object-fit:cover;" 
-                   alt="No Image">
+                   alt="No Image" 
+                   class="card-img-top">
             <?php endif; ?>
 
             <div class="card-body text-center">
-              <h5 class="card-title fw-bold text-dark"><?= htmlspecialchars($row['nama_produk']) ?></h5>
+              <h5><?= htmlspecialchars($row['nama_produk']) ?></h5>
               <p class="text-muted mb-1"><strong>Merk:</strong> <?= htmlspecialchars($row['nama_merk']) ?></p>
               <p class="text-muted mb-1"><strong>Kategori:</strong> <?= htmlspecialchars($row['kategori']) ?></p>
-              <p class="text-success fw-bold fs-5 mt-2">Rp <?= number_format($row['harga'], 0, ',', '.') ?></p>
-
-              <!-- Deskripsi singkat -->
+              <p class="harga mt-2">Rp <?= number_format($row['harga'], 0, ',', '.') ?></p>
               <p class="text-muted small mt-2">
-                <?= nl2br(htmlspecialchars(substr($row['deskripsi'], 0, 80))) ?>...
+                <?= nl2br(htmlspecialchars(substr($row['deskripsi'], 0, 70))) ?>...
               </p>
-
-              <!-- Tombol Aksi -->
-              <div class="d-flex justify-content-center gap-2 mt-3">
-                <a href="produk_detail.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-primary rounded-pill px-3">
-                  Detail
-                </a>
-              </div>
+              <a href="produk_detail.php?id=<?= $row['id_produk'] ?>" class="btn btn-outline-primary btn-detail mt-2">
+                Lihat Detail
+              </a>
             </div>
           </div>
         </div>
@@ -81,5 +121,6 @@ $result = $koneksi->query($sql);
       </div>
     <?php endif; ?>
   </div>
+</div>
 
 <?php include "footer.php"; ?>

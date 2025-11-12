@@ -14,6 +14,15 @@ if (!$result || $result->num_rows == 0) {
 }
 $produk = $result->fetch_assoc();
 
+// Pisahkan deskripsi dan spesifikasi (kalau sudah ada formatnya)
+$deskripsi_text = $produk['deskripsi'];
+$spesifikasi_text = "";
+if (strpos($produk['deskripsi'], "Spesifikasi:") !== false) {
+    [$deskripsi_text, $spesifikasi_text] = explode("Spesifikasi:", $produk['deskripsi'], 2);
+    $deskripsi_text = trim(str_replace("Deskripsi:", "", $deskripsi_text));
+    $spesifikasi_text = trim($spesifikasi_text);
+}
+
 // Ambil data merk
 $merk_result = $koneksi->query("SELECT * FROM merk ORDER BY nama_merk ASC");
 
@@ -22,9 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nama_produk = $_POST['nama_produk'];
     $kategori = $_POST['kategori'];
     $harga = $_POST['harga'];
-    $deskripsi = $_POST['deskripsi'];
+    $deskripsi = trim($_POST['deskripsi']);
+    $spesifikasi = trim($_POST['spesifikasi']);
     $stock = $_POST['stock'];
     $merk = $_POST['merk'];
+
+    // Gabungkan deskripsi + spesifikasi ke satu kolom
+    $gabung_deskripsi = "Deskripsi: $deskripsi\n\nSpesifikasi: $spesifikasi";
 
     // Jika ada file foto baru
     if (!empty($_FILES["foto"]["name"])) {
@@ -35,11 +48,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $foto_name = basename($_FILES["foto"]["name"]);
         $target_file = $target_dir . time() . "_" . $foto_name;
 
-       if (move_uploaded_file($_FILES["foto"]["tmp_name"], $target_file)) {
-    $photo_sql = ", photo='$target_file'";
-} else {
-    $photo_sql = "";
-}
+        if (move_uploaded_file($_FILES["foto"]["tmp_name"], $target_file)) {
+            $photo_sql = ", photo='$target_file'";
+        } else {
+            $photo_sql = "";
+        }
     } else {
         $photo_sql = "";
     }
@@ -50,13 +63,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 kategori='$kategori',
                 merk_id='$merk',
                 harga='$harga',
-                deskripsi='$deskripsi',
+                deskripsi='$gabung_deskripsi',
                 stock='$stock'
                 $photo_sql
             WHERE id_produk='$id'";
 
     if ($koneksi->query($sql) === TRUE) {
-        echo "Produk berhasil diperbarui. <a href='index.php?page=produk'>Kembali</a>";
+        echo "<script>alert('Produk berhasil diperbarui!'); window.location='index.php?page=produk';</script>";
     } else {
         echo "Error: " . $koneksi->error;
     }
@@ -92,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <h2>Edit Produk</h2>
     <form action="" method="post" enctype="multipart/form-data">
       <label>Nama Produk</label>
-      <input type="text" name="nama_produk" value="<?= $produk['nama_produk'] ?>" required>
+      <input type="text" name="nama_produk" value="<?= htmlspecialchars($produk['nama_produk']) ?>" required>
 
       <label>Kategori</label>
       <select name="kategori" required>
@@ -104,23 +117,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <select name="merk" required>
         <?php while($row = $merk_result->fetch_assoc()): ?>
           <option value="<?= $row['id_merk'] ?>" <?= ($row['id_merk'] == $produk['merk_id']) ? 'selected' : '' ?>>
-            <?= $row['nama_merk'] ?>
+            <?= htmlspecialchars($row['nama_merk']) ?>
           </option>
         <?php endwhile; ?>
       </select>
 
       <label>Harga</label>
-      <input type="number" name="harga" value="<?= $produk['harga'] ?>" required>
+      <input type="number" name="harga" value="<?= htmlspecialchars($produk['harga']) ?>" required>
 
       <label>Deskripsi</label>
-      <textarea name="deskripsi" required><?= $produk['deskripsi'] ?></textarea>
+      <textarea name="deskripsi" rows="3" required><?= htmlspecialchars($deskripsi_text) ?></textarea>
+
+      <label>Spesifikasi</label>
+      <textarea name="spesifikasi" rows="3" required><?= htmlspecialchars($spesifikasi_text) ?></textarea>
 
       <label>Stok</label>
-      <input type="number" name="stock" value="<?= $produk['stock'] ?>" required>
+      <input type="number" name="stock" value="<?= htmlspecialchars($produk['stock']) ?>" required>
 
       <label>Foto Produk</label>
       <?php if (!empty($produk['photo'])): ?>
-        <img src="<?= $produk['photo'] ?>" alt="Foto Produk">
+        <img src="<?= htmlspecialchars($produk['photo']) ?>" alt="Foto Produk">
       <?php endif; ?>
       <input type="file" name="foto" accept="image/*">
 

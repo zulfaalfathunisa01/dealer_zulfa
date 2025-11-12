@@ -22,7 +22,7 @@ if ($cari != '') {
     SELECT p.*, m.nama_merk 
     FROM produk p
     LEFT JOIN merk m ON p.merk_id = m.id_merk
-    WHERE p.id_produk IN (36, 38, 40, 42)
+    WHERE p.id_produk IN (36, 38, 40, 44)
     ORDER BY p.id_produk ASC
 ";
 }
