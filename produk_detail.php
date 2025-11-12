@@ -48,10 +48,13 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <title><?= htmlspecialchars($produk['nama_produk']) ?></title>
+
+  <!-- SimpleLightbox CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/simplelightbox@2.14.1/dist/simple-lightbox.min.css" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -76,6 +79,12 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       width: 100%;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      cursor: pointer; /* tanda bisa diklik */
+      transition: transform 0.3s;
+    }
+
+    .foto img:hover {
+      transform: scale(1.03);
     }
 
     .detail {
@@ -99,9 +108,10 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       margin-bottom: 15px;
     }
 
-    p {
-      color: #444;
-      line-height: 1.6;
+    .detail p {
+      color: #333;
+      line-height: 1.8;
+      font-size: 15px;
     }
 
     .btn-group {
@@ -128,44 +138,34 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       transform: translateY(-1px);
     }
 
-    .btn-keranjang {
-      background: #007bff;
-    }
-
-    .btn-wishlist {
-      background: #0d6efd;
-    }
-
-    .btn-checkout {
-      background: #0a58ca;
-    }
-
-    .btn-login {
-      background: #6c757d;
-    }
+    .btn-keranjang { background: #007bff; }
+    .btn-wishlist { background: #0d6efd; }
+    .btn-checkout { background: #0a58ca; }
+    .btn-login { background: #6c757d; }
 
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
         width: 90%;
       }
-
       .btn-group {
         flex-direction: column;
       }
     }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="foto">
-      <img src="admin/<?= htmlspecialchars($produk['photo']) ?>" alt="<?= htmlspecialchars($produk['nama_produk']) ?>">
+      <!-- Bungkus img pakai <a> supaya lightbox bisa muncul -->
+      <a href="admin/<?= htmlspecialchars($produk['photo']) ?>">
+        <img src="admin/<?= htmlspecialchars($produk['photo']) ?>" alt="<?= htmlspecialchars($produk['nama_produk']) ?>">
+      </a>
     </div>
     <div class="detail">
       <h2><?= htmlspecialchars($produk['nama_produk']) ?></h2>
       <p class="price">Rp <?= number_format($produk['harga'], 0, ',', '.') ?></p>
-      <p><?= nl2br(htmlspecialchars($produk['deskripsi'])) ?></p>
+      <p><?= nl2br(strip_tags($produk['deskripsi'], '<b><br>')) ?></p>
 
       <div class="btn-group">
         <form action="produk_keranjang.php" method="POST" style="display:inline;">
@@ -183,8 +183,13 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       </div>
     </div>
   </div>
-</body>
 
+  <!-- SimpleLightbox JS -->
+  <script src="https://cdn.jsdelivr.net/npm/simplelightbox@2.14.1/dist/simple-lightbox.min.js"></script>
+  <script>
+    var lightbox = new SimpleLightbox('.foto a', {});
+  </script>
+</body>
 </html>
 
 <?php include "footer.php"; ?>
