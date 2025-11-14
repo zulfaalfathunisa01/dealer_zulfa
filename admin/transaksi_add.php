@@ -92,11 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
         // Kurangi stok produk
        $qtyupdate = $koneksi->query("UPDATE produk SET stock = stock - $qty WHERE id_produk = $pid");
 
-       if ($qtyupdate){
-        echo "aaa";
-       }else{
-        echo "gagal";
-       }
+ 
     }
 
     // Hapus produk dari keranjang
@@ -123,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
             <p>Terima kasih, <strong>' . htmlspecialchars($nama) . '</strong>.<br>
             Pesananmu sedang diproses oleh admin.</p>
             <div class="d-flex justify-content-center gap-2 mt-3">
-                <a href="../profil.php/#riwayat.php" class="btn btn-primary">Lihat Pesanan Saya</a>
+                <a href="../profil.php" class="btn btn-primary">Lihat Pesanan Saya</a>
                 <a href="../index.php" class="btn btn-outline-secondary">Kembali ke Produk</a>
             </div>
         </div>

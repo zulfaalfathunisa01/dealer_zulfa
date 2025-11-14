@@ -17,15 +17,25 @@ $merk = $result->fetch_assoc();
 
 // Proses update
 if (isset($_POST['update'])) {
-    $nama_merk = mysqli_real_escape_string($koneksi, $_POST['nama_merk']);
+    $nama_merk = trim(mysqli_real_escape_string($koneksi, $_POST['nama_merk']));
+    $error = "";
 
-    $sql = "UPDATE merk SET nama_merk='$nama_merk' WHERE id_merk=$id";
-    if ($koneksi->query($sql)) {
-        // Redirect dengan status sukses
-        header('location:index.php?page=merk');
-        exit;
+    // Cek apakah nama merk baru sudah ada (kecuali dirinya sendiri)
+    $cek = $koneksi->prepare("SELECT id_merk FROM merk WHERE nama_merk = ? AND id_merk != ?");
+    $cek->bind_param("si", $nama_merk, $id);
+    $cek->execute();
+    $cek_result = $cek->get_result();
+
+    if ($cek_result->num_rows > 0) {
+        $error = "⚠️ Nama merk <b>$nama_merk</b> sudah terdaftar. Gunakan nama lain!";
     } else {
-        $error = "❌ Gagal update merk: " . $koneksi->error;
+        $sql = "UPDATE merk SET nama_merk='$nama_merk' WHERE id_merk=$id";
+        if ($koneksi->query($sql)) {
+            header('location:index.php?page=merk&status=updated');
+            exit;
+        } else {
+            $error = "❌ Gagal update merk: " . $koneksi->error;
+        }
     }
 }
 ?>
@@ -57,8 +67,9 @@ if (isset($_POST['update'])) {
                  value="<?= htmlspecialchars($merk['nama_merk']) ?>" required>
         </div>
         <button type="submit" name="update" class="btn btn-success">
-          <i class="bi bi-check-circle"></i> Simpan Perubahan
+          💾 Simpan Perubahan
         </button>
+        <a href="index.php?page=merk" class="btn btn-secondary">⬅️ Kembali</a>
       </form>
     </div>
   </div>

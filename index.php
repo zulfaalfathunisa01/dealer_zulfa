@@ -79,7 +79,7 @@ $result = $koneksi->query($sql);
     <?php else: ?>
       <div class="col-12 text-center mt-4">
         <div class="alert alert-warning shadow-sm border-0 rounded-3">
-          😢 Produk tidak ditemukan. Coba kata kunci lain ya
+         Produk tidak ditemukan. Coba kata kunci lain ya
         </div>
       </div>
     <?php endif; ?>

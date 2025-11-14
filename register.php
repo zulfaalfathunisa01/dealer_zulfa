@@ -4,37 +4,47 @@ include 'header.php';
 include 'db/koneksi.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nama_pengguna = trim($_POST['nama_pengguna']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $no_hp = trim($_POST['no_hp']);
-    $alamat = trim($_POST['alamat']);
+  $nama_pengguna = trim($_POST['nama_pengguna']);
+  $email = trim($_POST['email']);
+  $password = $_POST['password'];
+  $no_hp = trim($_POST['no_hp']);
+  $alamat = trim($_POST['alamat']);
 
-    // Cek apakah email sudah terdaftar
-    $stmt = $koneksi->prepare("SELECT * FROM pengguna WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+  // Cek apakah email valid
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo "<script>alert('Format email tidak valid!');</script>";
+    exit;
+  }
 
-    if ($result->num_rows > 0) {
-        echo "<script>alert('Email sudah digunakan! Silakan gunakan email lain.');</script>";
-    } else {
-        // Hash password
-        $hash = password_hash($password, PASSWORD_DEFAULT);
+  // Cek apakah email sudah terdaftar
+  $stmt = $koneksi->prepare("SELECT id_pengguna FROM pengguna WHERE email = ?");
+  $stmt->bind_param("s", $email);
+  $stmt->execute();
+  $stmt->store_result();
 
-        // Simpan ke database
-        $stmt = $koneksi->prepare("INSERT INTO pengguna (nama_pengguna, email, password, no_hp, alamat) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $nama_pengguna, $email, $hash, $no_hp, $alamat);
+  if ($stmt->num_rows > 0) {
+    echo "<script>
+                alert('Email sudah digunakan! Silakan gunakan email lain.');
+                window.history.back();
+              </script>";
+    exit;
+  }
 
-        if ($stmt->execute()) {
-            echo "<script>
+  // Hash password
+  $hash = password_hash($password, PASSWORD_DEFAULT);
+
+  // Simpan ke database
+  $stmt = $koneksi->prepare("INSERT INTO pengguna (nama_pengguna, email, password, no_hp, alamat) VALUES (?, ?, ?, ?, ?)");
+  $stmt->bind_param("sssss", $nama_pengguna, $email, $hash, $no_hp, $alamat);
+
+  if ($stmt->execute()) {
+    echo "<script>
                 alert('Registrasi berhasil! Silakan login sekarang.');
                 window.location='login.php';
-            </script>";
-        } else {
-            echo "<script>alert('Terjadi kesalahan saat menyimpan data.');</script>";
-        }
-    }
+              </script>";
+  } else {
+    echo "<script>alert('Terjadi kesalahan saat menyimpan data.');</script>";
+  }
 }
 ?>
 
@@ -44,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="card-body p-4">
       <h3 class="text-center mb-4 text-primary fw-bold">Daftar Akun</h3>
 
-      <form action="" method="POST">
+      <form action="" method="POST" novalidate>
         <div class="mb-3">
           <label class="form-label">Nama Lengkap</label>
           <input type="text" class="form-control" name="nama_pengguna" placeholder="Masukkan nama lengkap Anda" required>
@@ -57,12 +67,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input type="password" class="form-control" name="password" placeholder="Minimal 6 karakter" required>
+          <div class="input-group">
+            <input type="password" class="form-control" name="password" id="password" minlength="6" placeholder="Minimal 6 karakter" required>
+            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password', this)">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">No. HP</label>
-          <input type="tel" class="form-control" name="no_hp" placeholder="Contoh: 081234567890">
+          <input type="tel" class="form-control" name="no_hp" pattern="[0-9]{10,13}" placeholder="Contoh: 081234567890">
         </div>
 
         <div class="mb-3">
@@ -79,5 +94,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
   </div>
 </div>
+
+<script>
+  function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector("i");
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("bi-eye");
+      icon.classList.add("bi-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.remove("bi-eye-slash");
+      icon.classList.add("bi-eye");
+    }
+  }
+</script>
 
 <?php include 'footer.php'; ?>

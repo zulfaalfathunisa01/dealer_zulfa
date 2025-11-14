@@ -34,13 +34,11 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
   $result = $cek->get_result();
 
   if ($result->num_rows == 0) {
-    // Tambahkan ke wishlist
     $stmt = $koneksi->prepare("INSERT INTO wishlist (id_pengguna, id_produk) VALUES (?, ?)");
     $stmt->bind_param("ii", $id_pengguna, $id_produk);
     $stmt->execute();
   }
 
-  // Redirect agar tidak double insert
   header("Location: wishlist.php");
   exit;
 }
@@ -48,6 +46,7 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <title><?= htmlspecialchars($produk['nama_produk']) ?></title>
@@ -79,7 +78,7 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       width: 100%;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      cursor: pointer; /* tanda bisa diklik */
+      cursor: pointer;
       transition: transform 0.3s;
     }
 
@@ -105,7 +104,18 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       color: #007bff;
       font-size: 20px;
       font-weight: bold;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+    }
+
+    .stock {
+      font-size: 15px;
+      color: #28a745;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .stock.habis {
+      color: #dc3545;
     }
 
     .detail p {
@@ -119,6 +129,7 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       justify-content: flex-start;
       gap: 10px;
       margin-top: 20px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -138,58 +149,102 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       transform: translateY(-1px);
     }
 
-    .btn-keranjang { background: #007bff; }
-    .btn-wishlist { background: #0d6efd; }
-    .btn-checkout { background: #0a58ca; }
-    .btn-login { background: #6c757d; }
+    .btn-keranjang {
+      background: #007bff;
+    }
+
+    .btn-wishlist {
+      background: #0d6efd;
+    }
+
+    .btn-checkout {
+      background: #0a58ca;
+    }
+
+    .btn-login {
+      background: #6c757d;
+    }
+
+    .btn-disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
 
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
         width: 90%;
       }
+
       .btn-group {
         flex-direction: column;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="foto">
-      <!-- Bungkus img pakai <a> supaya lightbox bisa muncul -->
       <a href="admin/<?= htmlspecialchars($produk['photo']) ?>">
         <img src="admin/<?= htmlspecialchars($produk['photo']) ?>" alt="<?= htmlspecialchars($produk['nama_produk']) ?>">
       </a>
     </div>
+
     <div class="detail">
       <h2><?= htmlspecialchars($produk['nama_produk']) ?></h2>
       <p class="price">Rp <?= number_format($produk['harga'], 0, ',', '.') ?></p>
-      <p><?= nl2br(strip_tags($produk['deskripsi'], '<b><br>')) ?></p>
+
+      <!-- Tambahan stok -->
+      <?php if ($produk['stock'] > 0): ?>
+        <p class="stock">📦 Stok: <?= intval($produk['stock']) ?> unit</p>
+      <?php else: ?>
+        <p class="stock habis">❌ Stok Habis</p>
+      <?php endif; ?>
+
+      <?php
+      $bagian = explode("Spesifikasi:", $produk['deskripsi']);
+      $isi_deskripsi = isset($bagian[0]) ? trim(str_replace("Deskripsi:", "", $bagian[0])) : '';
+      $isi_spesifikasi = isset($bagian[1]) ? trim($bagian[1]) : '';
+      ?>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="color:#007bff;">Deskripsi</h4>
+        <p><?= nl2br(htmlspecialchars($isi_deskripsi)) ?></p>
+
+        <h4 style="color:#007bff; margin-top:15px;">Spesifikasi</h4>
+        <p><?= nl2br(htmlspecialchars($isi_spesifikasi)) ?></p>
+      </div>
 
       <div class="btn-group">
-        <form action="produk_keranjang.php" method="POST" style="display:inline;">
-          <input type="hidden" name="id_produk" value="<?= $produk['id_produk'] ?>">
-          <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">🛒 Keranjang</button>
-        </form>
+        <?php if ($produk['stock'] > 0): ?>
+          <form action="produk_keranjang.php" method="POST" style="display:inline;">
+            <input type="hidden" name="id_produk" value="<?= $produk['id_produk'] ?>">
+            <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">🛒 Keranjang</button>
+          </form>
+
+          <a href="checkout.php?id=<?= $produk['id_produk'] ?>" class="btn btn-checkout">💳 Pesan Sekarang</a>
+        <?php else: ?>
+          <button class="btn btn-disabled" disabled>🛒 Keranjang (Stok Habis)</button>
+          <button class="btn btn-disabled" disabled>💳 Pesan Tidak Tersedia</button>
+        <?php endif; ?>
 
         <?php if (isset($_SESSION['id_pengguna'])): ?>
           <a href="wishlist.php?id=<?= $produk['id_produk'] ?>&wishlist=1" class="btn btn-wishlist">💖 Wishlist</a>
         <?php else: ?>
           <a href="login.php" class="btn btn-login">🔐 Login Wishlist</a>
         <?php endif; ?>
-
-        <a href="checkout.php?id=<?= $produk['id_produk'] ?>" class="btn btn-checkout">💳 Checkout</a>
       </div>
     </div>
   </div>
 
-  <!-- SimpleLightbox JS -->
   <script src="https://cdn.jsdelivr.net/npm/simplelightbox@2.14.1/dist/simple-lightbox.min.js"></script>
   <script>
     var lightbox = new SimpleLightbox('.foto a', {});
   </script>
 </body>
+
 </html>
 
 <?php include "footer.php"; ?>

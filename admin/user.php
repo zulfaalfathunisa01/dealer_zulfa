@@ -35,13 +35,22 @@ if (isset($_POST['simpan'])) {
 // 🔹 Proses hapus user
 if (isset($_GET['hapus'])) {
   $id = intval($_GET['hapus']);
-  $sql = "DELETE FROM pengguna WHERE id_pengguna=$id";
+
+  // 🔸 Hapus dulu data yang berkaitan di tabel keranjang (jika ada)
+  $koneksi->query("DELETE FROM keranjang WHERE id_pengguna = $id");
+
+  // 🔸 (Opsional) Kalau ada relasi lain seperti tabel transaksi, tambahkan juga:
+  // $koneksi->query("DELETE FROM transaksi WHERE id_pengguna = $id");
+
+  // 🔸 Baru hapus user dari tabel pengguna
+  $sql = "DELETE FROM pengguna WHERE id_pengguna = $id";
   if ($koneksi->query($sql)) {
     echo "<div class='alert alert-success'>User berhasil dihapus!</div>";
   } else {
-    echo "<div class='alert alert-danger'>Gagal menghapus user!</div>";
+    echo "<div class='alert alert-danger'>Gagal menghapus user: {$koneksi->error}</div>";
   }
 }
+
 
 // 🔹 Ambil data user
 $result = $koneksi->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC");

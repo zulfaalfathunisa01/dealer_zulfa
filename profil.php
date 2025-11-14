@@ -97,74 +97,104 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
         </div>
 
         <!-- Form Edit -->
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+        <?php
+        if (session_status() === PHP_SESSION_NONE) {
+          session_start();
+        }
 
+        // Pastikan user sudah login
+        if (!isset($_SESSION['id_pengguna'])) {
+          echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
+          exit;
+        }
 
-// Pastikan user sudah login
-if (!isset($_SESSION['id_pengguna'])) {
-  echo "<script>alert('Silakan login dulu!'); window.location='login.php';</script>";
-  exit;
-}
+        include "db/koneksi.php";
 
-$id_pengguna = $_SESSION['id_pengguna'];
+        $id_pengguna = $_SESSION['id_pengguna'];
 
-// Ambil data profil user dari database
-$query = mysqli_query($koneksi, "SELECT * FROM pengguna WHERE id_pengguna='$id_pengguna'");
-$data_profil = mysqli_fetch_assoc($query);
+        // Ambil data profil user
+        $query = mysqli_query($koneksi, "SELECT * FROM pengguna WHERE id_pengguna='$id_pengguna'");
+        $data_profil = mysqli_fetch_assoc($query);
 
-// Ambil inisial nama untuk avatar (misal huruf pertama nama)
-$inisial = !empty($data_profil['nama_pengguna']) ? strtoupper(substr($data_profil['nama_pengguna'], 0, 1)) : '?';
+        // Jika tombol simpan ditekan
+        if (isset($_POST['simpan'])) {
+          $nama_pengguna = mysqli_real_escape_string($koneksi, $_POST['nama_pengguna']);
+          $email = mysqli_real_escape_string($koneksi, $_POST['email']);
+          $no_hp = mysqli_real_escape_string($koneksi, $_POST['no_hp']);
+          $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
 
-// Jika tombol simpan ditekan
-if (isset($_POST['simpan'])) {
-  $nama_pengguna = mysqli_real_escape_string($koneksi, $_POST['nama_pengguna']);
-  $email = mysqli_real_escape_string($koneksi, $_POST['email']);
-  $no_hp = mysqli_real_escape_string($koneksi, $_POST['no_hp']);
-  $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+          // ====== AMBIL PASSWORD INPUT ======
+          $password_lama = $_POST['password_lama'] ?? '';
+          $password_baru = $_POST['password_baru'] ?? '';
+          $konfirmasi = $_POST['konfirmasi_password'] ?? '';
 
-  // Cek apakah user upload foto baru
-  $foto_baru = $_FILES['foto']['name'];
-  if (!empty($foto_baru)) {
-    $tmp = $_FILES['foto']['tmp_name'];
-    $nama_file = time() . '_' . basename($foto_baru);
-    $folder = "uploads/" . $nama_file;
+          // ====== HANDLE UPLOAD FOTO ======
+          $foto_baru = $_FILES['foto']['name'];
+          if (!empty($foto_baru)) {
+            $tmp = $_FILES['foto']['tmp_name'];
+            $nama_file = time() . '_' . basename($foto_baru);
+            if (move_uploaded_file($tmp, "uploads/" . $nama_file)) {
+              if (!empty($data_profil['foto']) && file_exists("uploads/" . $data_profil['foto'])) {
+                unlink("uploads/" . $data_profil['foto']);
+              }
+              $foto_update = "foto='$nama_file',";
+            }
+          } else {
+            $foto_update = "";
+          }
 
-    // Pindahkan file baru ke folder uploads
-    if (move_uploaded_file($tmp, $folder)) {
-      // Hapus foto lama jika ada
-      if (!empty($data_profil['foto']) && file_exists("uploads/" . $data_profil['foto'])) {
-        unlink("uploads/" . $data_profil['foto']);
-      }
+          // ================================
+          // 🚨 BAGIAN UBAH PASSWORD
+          // ================================
+          if (!empty($password_lama) || !empty($password_baru) || !empty($konfirmasi)) {
 
-      // Update profil termasuk foto
-      $update = mysqli_query($koneksi, "
-        UPDATE pengguna 
-        SET nama_pengguna='$nama_pengguna', email='$email', no_hp='$no_hp', alamat='$alamat', foto='$nama_file' 
-        WHERE id_pengguna='$id_pengguna'
-      ");
-    } else {
-      echo "<script>alert('Gagal upload foto baru.');</script>";
-    }
-  } else {
-    // Update profil tanpa ubah foto
-    $update = mysqli_query($koneksi, "
-      UPDATE pengguna 
-      SET nama_pengguna='$nama_pengguna', email='$email', no_hp='$no_hp', alamat='$alamat'
+            // Semua harus diisi
+            if (empty($password_lama) || empty($password_baru) || empty($konfirmasi)) {
+              echo "<script>alert('Semua kolom password harus diisi!');</script>";
+              exit;
+            }
+
+            // Cek password lama benar
+            if (!password_verify($password_lama, $data_profil['password'])) {
+              echo "<script>alert('Password lama salah!');</script>";
+              exit;
+            }
+
+            // Password baru harus sama
+            if ($password_baru !== $konfirmasi) {
+              echo "<script>alert('Konfirmasi password baru tidak cocok!');</script>";
+              exit;
+            }
+
+            // Hash password baru
+            $password_baru_hashed = password_hash($password_baru, PASSWORD_DEFAULT);
+            $password_update = "password='$password_baru_hashed',";
+          } else {
+            $password_update = "";
+          }
+
+          // ================================
+          // UPDATE DATA
+          // ================================
+          $update = mysqli_query($koneksi, "
+      UPDATE pengguna SET 
+        nama_pengguna='$nama_pengguna',
+        email='$email',
+        no_hp='$no_hp',
+        alamat='$alamat',
+        $foto_update
+        $password_update
+        id_pengguna='$id_pengguna'
       WHERE id_pengguna='$id_pengguna'
-    ");
-  }
+  ");
 
-  if ($update) {
-    echo "<script>alert('Profil berhasil diperbarui!'); window.location='profil.php';</script>";
-  } else {
-    echo "<script>alert('Terjadi kesalahan saat memperbarui profil.');</script>";
-  }
-}
-?>
-
+          if ($update) {
+            echo "<script>alert('Profil berhasil diperbarui!'); window.location='profil.php';</script>";
+          } else {
+            echo "<script>alert('Gagal memperbarui profil!');</script>";
+          }
+        }
+        ?>
 
         <form id="profil-edit" action="" method="post" style="display:none;" enctype="multipart/form-data">
           <div class="mb-3">
@@ -187,6 +217,41 @@ if (isset($_POST['simpan'])) {
             <label>Foto Profil</label>
             <input type="file" name="foto" class="form-control">
           </div>
+
+          <h5 class="mt-4">Ubah Password</h5>
+
+          <div class="mb-3">
+            <label>Password Lama</label>
+            <div class="input-group">
+              <input type="password" name="password_lama" id="password_lama" class="form-control">
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password_lama', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label>Password Baru</label>
+            <div class="input-group">
+              <input type="password" name="password_baru" id="password_baru" class="form-control">
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('password_baru', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label>Konfirmasi Password Baru</label>
+            <div class="input-group">
+              <input type="password" name="konfirmasi_password" id="konfirmasi_password" class="form-control">
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('konfirmasi_password', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+
+
           <div style="text-align:center;">
             <button type="submit" name="simpan" style="background:#007bff; color:white; border:none; padding:10px 20px; border-radius:8px;">💾 Simpan</button>
             <button type="button" id="batalBtn" style="background:#ccc; color:#000; border:none; padding:10px 20px; border-radius:8px;">❌ Batal</button>
@@ -196,6 +261,21 @@ if (isset($_POST['simpan'])) {
     </div>
 
     <script>
+      function togglePassword(id, btn) {
+        const input = document.getElementById(id);
+        const icon = btn.querySelector("i");
+
+        if (input.type === "password") {
+          input.type = "text";
+          icon.classList.remove("bi-eye");
+          icon.classList.add("bi-eye-slash");
+        } else {
+          input.type = "password";
+          icon.classList.remove("bi-eye-slash");
+          icon.classList.add("bi-eye");
+        }
+      }
+    
       document.getElementById("editBtn").addEventListener("click", function() {
         document.getElementById("profil-view").style.display = "none";
         document.getElementById("profil-edit").style.display = "block";
@@ -383,7 +463,7 @@ if (isset($_POST['simpan'])) {
       </style>
 
       <div class="wishlist-container">
-        <h3 class="wishlist-title">💖 Wishlist Kamu</h3>
+        <h3 class="wishlist-title">Wishlist Kamu</h3>
 
         <?php if ($wishlist->num_rows > 0): ?>
           <div class="wishlist-grid">
@@ -397,7 +477,7 @@ if (isset($_POST['simpan'])) {
                 <div class="wishlist-buttons">
                   <form action="produk_keranjang.php" method="POST" style="display:inline;">
                     <input type="hidden" name="id_produk" value="<?= $row['id_produk'] ?>">
-                    <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">🛒 Keranjang</button>
+                    <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">Keranjang</button>
                   </form>
                   <a href="checkout.php?id=<?= $row['id_produk'] ?>" class="btn-checkout">Checkout</a>
                   <a href="profil.php?hapus=<?= $row['id_wishlist'] ?>#wishlist"
@@ -410,7 +490,7 @@ if (isset($_POST['simpan'])) {
             <?php endwhile; ?>
           </div>
         <?php else: ?>
-          <p class="empty-wishlist">Belum ada produk di wishlist kamu 💔</p>
+          <p class="empty-wishlist">Belum ada produk di wishlist kamu</p>
         <?php endif; ?>
       </div>
     </div>
@@ -499,7 +579,7 @@ if (isset($_POST['simpan'])) {
             </div>
           <?php endwhile; ?>
         <?php else: ?>
-          <p class="text-center text-muted mt-3">Belum ada transaksi 💔</p>
+          <p class="text-center text-muted mt-3">Belum ada transaksi</p>
         <?php endif; ?>
       </div>
     </div>

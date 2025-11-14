@@ -79,7 +79,7 @@ $result = $koneksi->query($sql);
 
 <div class="container py-5">
   <div class="text-center mb-5">
-    <h2 class="fw-bold text-primary">🛵 Daftar Produk <span class="text-dark">ZULFORCE</span></h2>
+    <h2 class="fw-bold text-primary">Daftar Produk <span class="text-dark">ZULFORCE</span></h2>
     <p class="text-muted">Temukan motor impianmu di sini!</p>
   </div>
 
@@ -116,7 +116,7 @@ $result = $koneksi->query($sql);
     <?php else: ?>
       <div class="col-12 text-center mt-4">
         <div class="alert alert-warning shadow-sm border-0 rounded-3">
-          😢 Tidak ada produk ditemukan untuk kata kunci "<strong><?= htmlspecialchars($cari) ?></strong>"
+        Tidak ada produk ditemukan untuk kata kunci "<strong><?= htmlspecialchars($cari) ?></strong>"
         </div>
       </div>
     <?php endif; ?>

@@ -30,11 +30,17 @@ $merk_result = $koneksi->query("SELECT * FROM merk ORDER BY nama_merk ASC");
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nama_produk = $_POST['nama_produk'];
     $kategori = $_POST['kategori'];
-    $harga = $_POST['harga'];
+    $harga = intval($_POST['harga']);
     $deskripsi = trim($_POST['deskripsi']);
     $spesifikasi = trim($_POST['spesifikasi']);
-    $stock = $_POST['stock'];
+    $stock = intval($_POST['stock']);
     $merk = $_POST['merk'];
+
+    // Validasi harga & stok minimal 1
+    if ($harga < 1 || $stock < 1) {
+        echo "<script>alert('Harga dan stok tidak boleh kurang dari 1!'); history.back();</script>";
+        exit;
+    }
 
     // Gabungkan deskripsi + spesifikasi ke satu kolom
     $gabung_deskripsi = "Deskripsi: $deskripsi\n\nSpesifikasi: $spesifikasi";
@@ -123,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </select>
 
       <label>Harga</label>
-      <input type="number" name="harga" value="<?= htmlspecialchars($produk['harga']) ?>" required>
+      <input type="number" name="harga" min="1" value="<?= htmlspecialchars($produk['harga']) ?>" required>
 
       <label>Deskripsi</label>
       <textarea name="deskripsi" rows="3" required><?= htmlspecialchars($deskripsi_text) ?></textarea>
@@ -132,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <textarea name="spesifikasi" rows="3" required><?= htmlspecialchars($spesifikasi_text) ?></textarea>
 
       <label>Stok</label>
-      <input type="number" name="stock" value="<?= htmlspecialchars($produk['stock']) ?>" required>
+      <input type="number" name="stock" min="1" value="<?= htmlspecialchars($produk['stock']) ?>" required>
 
       <label>Foto Produk</label>
       <?php if (!empty($produk['photo'])): ?>

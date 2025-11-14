@@ -24,12 +24,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $no_hp  = mysqli_real_escape_string($koneksi, $_POST['no_hp']);
     $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
 
+    // ✅ Cek apakah data sudah digunakan oleh user lain
+    $cek_duplikat = mysqli_query($koneksi, "
+        SELECT * FROM pengguna 
+        WHERE (email='$email' OR no_hp='$no_hp' OR nama_pengguna='$nama')
+        AND id_pengguna != $id
+    ");
+
+    if (mysqli_num_rows($cek_duplikat) > 0) {
+        echo "<script>alert('❌ Gagal! Data sudah digunakan oleh user lain.'); history.back();</script>";
+        exit;
+    }
+
+    // Jika tidak duplikat → lanjut update
     $sql = "UPDATE pengguna 
             SET nama_pengguna='$nama', email='$email', no_hp='$no_hp', alamat='$alamat' 
             WHERE id_pengguna=$id";
 
     if (mysqli_query($koneksi, $sql)) {
-        echo "<script>alert('Data user berhasil diperbarui!'); window.location='index.php?page=user';</script>";
+        echo "<script>alert('✅ Data user berhasil diperbarui!'); window.location='index.php?page=user';</script>";
         exit;
     } else {
         echo "❌ Error: " . mysqli_error($koneksi);
@@ -51,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       padding: 0;
     }
 
-    /* ✅ Pusatkan card di layar */
     .center-wrapper {
       display: flex;
       justify-content: center;
@@ -123,7 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .back-btn:hover { text-decoration: underline; }
 
-    /* ✨ Animasi lembut */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
