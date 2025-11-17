@@ -9,31 +9,35 @@ include "db/koneksi.php";
 <head>
   <meta charset="UTF-8">
   <title>Dealer Motor</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Wajib agar ikon mata (bi-eye) muncul -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
-    <!-- Brand yang bisa diklik kembali ke beranda -->
     <a class="navbar-brand fw-bold" href="index.php">Zulforce</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+
         <!-- 🔍 Form Pencarian -->
         <li class="nav-item me-3">
           <form class="d-flex" role="search" method="GET" action="index.php">
             <input 
-              class="form-control form-control-sm me-2" 
-              type="search" 
-              name="cari" 
-              placeholder="Cari motor..." 
-              aria-label="Search"
+              class="form-control form-control-sm me-2"
+              type="search"
+              name="cari"
+              placeholder="Cari motor..."
               style="width: 180px;"
               value="<?= isset($_GET['cari']) ? htmlspecialchars($_GET['cari']) : '' ?>"
             >
