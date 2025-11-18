@@ -275,7 +275,7 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
           icon.classList.add("bi-eye");
         }
       }
-    
+
       document.getElementById("editBtn").addEventListener("click", function() {
         document.getElementById("profil-view").style.display = "none";
         document.getElementById("profil-edit").style.display = "block";
@@ -503,10 +503,10 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
 
     // Ambil riwayat transaksi pengguna
     $query_riwayat = $koneksi->query("
-  SELECT id_transaksi, tanggal_transaksi, total_harga, status
-  FROM transaksi
-  WHERE pengguna_id = '$id_pengguna'
-  ORDER BY tanggal_transaksi DESC
+    SELECT id_transaksi, tanggal_transaksi, total_harga, status, catatan_batal
+    FROM transaksi
+    WHERE pengguna_id = '$id_pengguna'
+    ORDER BY tanggal_transaksi DESC
 ");
     ?>
 
@@ -544,11 +544,11 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
                   <?php
                   // Ambil detail transaksi
                   $query_detail = $koneksi->query("
-                SELECT p.nama_produk, td.jumlah, td.harga
-                FROM transaksi_detail td
-                JOIN produk p ON td.produk_id = p.id_produk
-                WHERE td.transaksi_id = '$trans_id'
-              ");
+                                SELECT p.nama_produk, td.jumlah, td.harga
+                                FROM transaksi_detail td
+                                JOIN produk p ON td.produk_id = p.id_produk
+                                WHERE td.transaksi_id = '$trans_id'
+                            ");
                   if ($query_detail->num_rows > 0):
                   ?>
                     <table class="table table-bordered mb-0">
@@ -558,6 +558,7 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
                           <th>Jumlah</th>
                           <th>Harga</th>
                           <th>Subtotal</th>
+                          <th>Alasan Batal</th> <!-- kolom baru -->
                         </tr>
                       </thead>
                       <tbody>
@@ -567,6 +568,14 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
                             <td><?= $d['jumlah'] ?></td>
                             <td>Rp <?= number_format($d['harga'], 0, ',', '.') ?></td>
                             <td>Rp <?= number_format($d['jumlah'] * $d['harga'], 0, ',', '.') ?></td>
+                            <td>
+                              <?php if ($row['status'] == 'batal' && !empty($row['catatan_batal'])): ?>
+                                <span class="badge-alasan"><?= htmlspecialchars($row['catatan_batal']) ?></span>
+                              <?php else: ?>
+                                -
+                              <?php endif; ?>
+                            </td>
+
                           </tr>
                         <?php endwhile; ?>
                       </tbody>
@@ -585,6 +594,19 @@ $inisial = getInisial($data_profil['nama_pengguna'] ?? 'U');
     </div>
 
     <style>
+      .badge-alasan {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 6px;
+        background-color: #f8d7da;
+        /* merah muda */
+        color: #842029;
+        /* merah teks */
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+
       .accordion-button {
         font-weight: 500;
       }
