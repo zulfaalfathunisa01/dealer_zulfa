@@ -13,7 +13,7 @@ date_default_timezone_set('Asia/Jakarta');
     <form method="GET" class="d-flex align-items-center">
       <input type="hidden" name="page" value="transaksi">
       <input type="text" name="search" class="form-control me-2"
-             placeholder="Cari berdasarkan ID / Status / Nama..."
+             placeholder="Cari berdasarkan ID / Nomor Booking / Status / Nama..."
              value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
       <button class="btn btn-primary"><i class="bi bi-search"></i></button>
     </form>
@@ -26,6 +26,7 @@ date_default_timezone_set('Asia/Jakarta');
         <thead class="text-white" style="background-color:#0d6efd;">
           <tr>
             <th>ID</th>
+            <th>Nomor Booking</th>
             <th>Nama Pengguna</th>
             <th>Total Harga</th>
             <th>Tanggal</th>
@@ -41,31 +42,35 @@ date_default_timezone_set('Asia/Jakarta');
                     FROM transaksi t
                     JOIN pengguna p ON t.pengguna_id = p.id_pengguna
                     WHERE t.id_transaksi LIKE '%$search%' 
+                       OR t.nomor_booking LIKE '%$search%'
                        OR t.status LIKE '%$search%' 
                        OR p.nama_pengguna LIKE '%$search%'
                     ORDER BY t.id_transaksi DESC";
           $result = mysqli_query($koneksi, $query);
 
+          $badgeClass = [
+            'pesanan dibuat' => 'secondary',
+            'proses'         => 'primary',
+            'kirim'          => 'info text-dark',
+            'selesai'        => 'success',
+            'batal'          => 'danger'
+          ];
+
           if (mysqli_num_rows($result) > 0):
             while ($row = mysqli_fetch_assoc($result)):
               $status = strtolower($row['status']);
-              $badgeClass = [
-                'pesanan dibuat' => 'secondary',
-                'proses' => 'primary',
-                'kirim' => 'info text-dark',
-                'selesai' => 'success',
-                'batal' => 'danger'
-              ];
               $class = $badgeClass[$status] ?? 'secondary';
           ?>
           <tr>
             <td><?= $row['id_transaksi']; ?></td>
+            <td><strong><?= $row['nomor_booking']; ?></strong></td>
             <td><?= htmlspecialchars($row['nama_pengguna']); ?></td>
             <td>Rp <?= number_format($row['total_harga'], 0, ',', '.'); ?></td>
             <td><?= date('d F Y, H:i', strtotime($row['tanggal_transaksi'])); ?> WIB</td>
             <td><span class="badge bg-<?= $class ?> text-capitalize"><?= ucfirst($status) ?></span></td>
             <td>
-              <?php if ($status == 'pesanan dibuat' || $status == 'proses' || $status == 'kirim'): ?>
+              <?php if (in_array($status, ['pesanan dibuat','proses','kirim'])): ?>
+                
                 <?php if ($status == 'pesanan dibuat'): ?>
                   <a href="?page=transaksi&ubah_status=proses&id=<?= $row['id_transaksi']; ?>" class="btn btn-sm btn-primary me-1">Proses</a>
                 <?php elseif ($status == 'proses'): ?>
@@ -112,7 +117,7 @@ date_default_timezone_set('Asia/Jakarta');
           <?php
             endwhile;
           else:
-            echo "<tr><td colspan='7' class='text-muted'>Belum ada data transaksi</td></tr>";
+            echo "<tr><td colspan='8' class='text-muted'>Belum ada data transaksi</td></tr>";
           endif;
           ?>
         </tbody>
