@@ -3,6 +3,9 @@ session_start();
 include 'header.php';
 include 'db/koneksi.php';
 
+$redirect_url = isset($_GET['redirect']) ? $_GET['redirect'] : "index.php";
+
+echo $redirect_url;
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $email = trim($_POST['email']);
@@ -23,10 +26,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['nama'] = $user['nama_pengguna'];
 
             echo "<script>
-                alert('Login berhasil! Selamat datang, " . htmlspecialchars($user['nama_pengguna']) . "');
-                window.location='index.php';
-            </script>";
-            exit;
+                alert('Login berhasil!');
+                location.href='" . htmlspecialchars($redirect_url, ENT_QUOTES) . "';
+              </script>";
+        exit;
         } else {
             echo "<script>alert('Password salah!');</script>";
         }

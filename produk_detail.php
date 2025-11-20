@@ -218,26 +218,41 @@ if (isset($_GET['wishlist']) && isset($_SESSION['id_pengguna'])) {
       </div>
 
       <div class="btn-group">
-        <?php if ($produk['stock'] > 0): ?>
-          <form action="produk_keranjang.php" method="POST" style="display:inline;">
-            <input type="hidden" name="id_produk" value="<?= $produk['id_produk'] ?>">
-            <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">🛒 Keranjang</button>
-          </form>
+  <?php if ($produk['stock'] > 0): ?>
+    <!-- Tombol Keranjang -->
+    <?php if (isset($_SESSION['id_pengguna'])): ?>
+      <form action="produk_keranjang.php" method="POST" style="display:inline;">
+        <input type="hidden" name="id_produk" value="<?= $produk['id_produk'] ?>">
+        <button type="submit" class="btn btn-keranjang" name="tambah_keranjang">🛒 Keranjang</button>
+      </form>
+    <?php else: ?>
+      <a href="login.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-keranjang">
+        🛒 Keranjang
+      </a>
+    <?php endif; ?>
 
-          <a href="checkout.php?id=<?= $produk['id_produk'] ?>" class="btn btn-checkout">💳 Pesan Sekarang</a>
-        <?php else: ?>
-          <button class="btn btn-disabled" disabled>🛒 Keranjang (Stok Habis)</button>
-          <button class="btn btn-disabled" disabled>💳 Pesan Tidak Tersedia</button>
-        <?php endif; ?>
+    <!-- Tombol Pesan Sekarang -->
+    <?php if (isset($_SESSION['id_pengguna'])): ?>
+      <a href="checkout.php?id=<?= $produk['id_produk'] ?>" class="btn btn-checkout">💳 Pesan Sekarang</a>
+    <?php else: ?>
+      <a href="login.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-checkout">
+        💳 Pesan Sekarang
+      </a>
+    <?php endif; ?>
+  <?php else: ?>
+    <!-- Tombol disabled kalau stok habis -->
+    <button class="btn btn-disabled" disabled>🛒 Keranjang (Stok Habis)</button>
+    <button class="btn btn-disabled" disabled>💳 Pesan Tidak Tersedia</button>
+  <?php endif; ?>
 
-        <?php if (isset($_SESSION['id_pengguna'])): ?>
-          <a href="wishlist.php?id=<?= $produk['id_produk'] ?>&wishlist=1" class="btn btn-wishlist">💖 Wishlist</a>
-        <?php else: ?>
-          <a href="login.php" class="btn btn-login">🔐 Login Wishlist</a>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
+  <!-- Tombol Wishlist -->
+  <?php if (isset($_SESSION['id_pengguna'])): ?>
+    <a href="wishlist.php?id=<?= $produk['id_produk'] ?>&wishlist=1" class="btn btn-wishlist">💖 Wishlist</a>
+  <?php else: ?>
+    <a href="login.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn btn-login">🔐 Login Wishlist</a>
+  <?php endif; ?>
+</div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/simplelightbox@2.14.1/dist/simple-lightbox.min.js"></script>
   <script>

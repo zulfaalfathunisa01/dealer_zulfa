@@ -38,7 +38,7 @@ date_default_timezone_set('Asia/Jakarta');
         <tbody>
           <?php
           $search = isset($_GET['search']) ? $_GET['search'] : '';
-          $query = "SELECT+ t.*, p.nama_pengguna 
+          $query = "SELECT t.*, p.nama_pengguna 
                     FROM transaksi t
                     JOIN pengguna p ON t.pengguna_id = p.id_pengguna
                     WHERE t.id_transaksi LIKE '%$search%' 
