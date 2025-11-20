@@ -1,182 +1,164 @@
 <?php
-include "../db/koneksi.php";
+include __DIR__ . "/../db/koneksi.php";
 
-// --- Ambil data user berdasarkan ID ---
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    $query = mysqli_query($koneksi, "SELECT * FROM pengguna WHERE id_pengguna = $id");
-
-    if (mysqli_num_rows($query) > 0) {
-        $user = mysqli_fetch_assoc($query);
-    } else {
-        echo "<script>alert('Data user tidak ditemukan!'); window.location='index.php?page=user';</script>";
-        exit;
-    }
-} else {
-    echo "<script>alert('ID user tidak ditemukan!'); window.location='index.php?page=user';</script>";
-    exit;
+// Pastikan ada ID
+if (!isset($_GET['id'])) {
+    die("<h3>ID User tidak ditemukan!</h3>");
 }
 
-// --- Proses update ---
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nama   = mysqli_real_escape_string($koneksi, $_POST['nama_pengguna']);
-    $email  = mysqli_real_escape_string($koneksi, $_POST['email']);
-    $no_hp  = mysqli_real_escape_string($koneksi, $_POST['no_hp']);
-    $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+$id = intval($_GET['id']);
 
-    // ✅ Cek apakah data sudah digunakan oleh user lain
-    $cek_duplikat = mysqli_query($koneksi, "
-        SELECT * FROM pengguna 
-        WHERE (email='$email' OR no_hp='$no_hp' OR nama_pengguna='$nama')
-        AND id_pengguna != $id
-    ");
+// =========================
+// 1. Ambil data user
+// =========================
+$stmt = $koneksi->prepare("SELECT * FROM pengguna WHERE id_pengguna = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$data = $stmt->get_result()->fetch_assoc();
 
-    if (mysqli_num_rows($cek_duplikat) > 0) {
-        echo "<script>alert('❌ Gagal! Data sudah digunakan oleh user lain.'); history.back();</script>";
-        exit;
-    }
+if (!$data) {
+    die("<h3>User tidak ditemukan!</h3>");
+}
 
-    // Jika tidak duplikat → lanjut update
-    $sql = "UPDATE pengguna 
-            SET nama_pengguna='$nama', email='$email', no_hp='$no_hp', alamat='$alamat' 
-            WHERE id_pengguna=$id";
+// =========================
+// 2. Proses Update Data
+// =========================
+if (isset($_POST['update'])) {
 
-    if (mysqli_query($koneksi, $sql)) {
-        echo "<script>alert('✅ Data user berhasil diperbarui!'); window.location='index.php?page=user';</script>";
-        exit;
+    $nama   = trim($_POST['nama_pengguna']);
+    $email  = trim($_POST['email']);
+    $no_hp  = trim($_POST['no_hp']);
+    $alamat = trim($_POST['alamat']);
+
+    // Jika password ingin diganti
+    $password_baru = trim($_POST['password_baru']);
+    $konfirmasi    = trim($_POST['konfirmasi_password']);
+
+    if ($password_baru !== "" && $password_baru !== $konfirmasi) {
+        echo "<script>alert('Konfirmasi password tidak cocok!');</script>";
     } else {
-        echo "❌ Error: " . mysqli_error($koneksi);
+
+        // Update data tanpa password
+        $sql = $koneksi->prepare("
+            UPDATE pengguna 
+            SET nama_pengguna=?, email=?, no_hp=?, alamat=? 
+            WHERE id_pengguna=?
+        ");
+        $sql->bind_param("ssssi", $nama, $email, $no_hp, $alamat, $id);
+        $sql->execute();
+
+        // Kalau password diisi → update password
+        if ($password_baru !== "") {
+            $pass = password_hash($password_baru, PASSWORD_DEFAULT);
+            $u = $koneksi->prepare("UPDATE pengguna SET password=? WHERE id_pengguna=?");
+            $u->bind_param("si", $pass, $id);
+            $u->execute();
+        }
+
+        echo "<script>
+                alert('Data user berhasil diperbarui!');
+                window.location='index.php?page=user';
+              </script>";
+        exit;
     }
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Edit User | ZULFORCE</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Edit User</title>
+
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f0f4f8;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
       margin: 0;
       padding: 0;
     }
-
-    .center-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .edit-card {
+    .container {
+      max-width: 600px;
       background: #fff;
-      padding: 40px 45px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 420px;
-      max-width: 90%;
-      text-align: left;
-      animation: fadeIn 0.4s ease;
+      margin: 40px auto;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
     h2 {
       text-align: center;
-      color: #0d6efd;
-      font-weight: 700;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
+      color: #333;
     }
-
     label {
-      font-weight: 500;
-      color: #2c3e50;
-      margin-top: 10px;
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      color: #444;
     }
-
     input, textarea {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ced4da;
+      padding: 10px;
+      margin-top: 7px;
       border-radius: 8px;
-      margin-top: 5px;
-      font-size: 14px;
-      box-sizing: border-box;
+      border: 1px solid #aaa;
     }
-
-    textarea { resize: vertical; }
-
-    .btn-container {
-      text-align: center;
-      margin-top: 25px;
-    }
-
-    .btn-submit {
-      background: #0d6efd;
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
       color: #fff;
       border: none;
-      padding: 12px 40px;
-      border-radius: 8px;
       font-size: 16px;
-      font-weight: 600;
-      transition: background 0.3s ease;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
     }
-
-    .btn-submit:hover { background: #0b5ed7; }
-
-    .back-btn {
-      display: inline-block;
-      margin-top: 12px;
+    button:hover {
+      background: #218838;
+    }
+    .btn-back {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      color: #555;
       text-decoration: none;
-      color: #0d6efd;
-      font-weight: 500;
-    }
-
-    .back-btn:hover { text-decoration: underline; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
   </style>
+
 </head>
 <body>
 
-  <div class="center-wrapper">
-    <div class="edit-card">
-      <h2>Edit Data User</h2>
-      <form action="" method="post">
-        <div class="mb-3">
-          <label for="nama_pengguna">Nama Lengkap</label>
-          <input type="text" id="nama_pengguna" name="nama_pengguna" 
-                value="<?= htmlspecialchars($user['nama_pengguna'] ?? '') ?>" required>
-        </div>
+<div class="container">
+  <h2>Edit User</h2>
 
-        <div class="mb-3">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" 
-                value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
-        </div>
+  <form method="post">
+    <label>Nama Pengguna</label>
+    <input type="text" name="nama_pengguna" value="<?= htmlspecialchars($data['nama_pengguna']) ?>" required>
 
-        <div class="mb-3">
-          <label for="no_hp">Nomor HP</label>
-          <input type="text" id="no_hp" name="no_hp" 
-                value="<?= htmlspecialchars($user['no_hp'] ?? '') ?>" required>
-        </div>
+    <label>Email</label>
+    <input type="email" name="email" value="<?= htmlspecialchars($data['email']) ?>" required>
 
-        <div class="mb-3">
-          <label for="alamat">Alamat</label>
-          <textarea id="alamat" name="alamat" rows="3" required><?= htmlspecialchars($user['alamat'] ?? '') ?></textarea>
-        </div>
+    <label>No HP</label>
+    <input type="text" name="no_hp" value="<?= htmlspecialchars($data['no_hp']) ?>" required>
 
-        <div class="btn-container">
-          <button type="submit" class="btn-submit">Simpan Perubahan</button><br>
-          <a href="index.php?page=user" class="back-btn">⬅ Kembali ke Daftar User</a>
-        </div>
-      </form>
-    </div>
-  </div>
+    <label>Alamat</label>
+    <textarea name="alamat" rows="3" required><?= htmlspecialchars($data['alamat']) ?></textarea>
+
+    <hr style="margin: 20px 0;">
+
+    <label>Password Baru (opsional)</label>
+    <input type="password" name="password_baru" placeholder="Kosongkan jika tidak diganti">
+
+    <label>Konfirmasi Password Baru</label>
+    <input type="password" name="konfirmasi_password" placeholder="Ulangi password baru">
+
+    <button type="submit" name="update">Simpan Perubahan</button>
+  </form>
+
+  <a href="index.php?page=user" class="btn-back">← Kembali ke daftar user</a>
+</div>
 
 </body>
 </html>
