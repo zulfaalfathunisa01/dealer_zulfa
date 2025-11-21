@@ -1,5 +1,4 @@
 <?php
-// Koneksi stabil pakai __DIR__
 include __DIR__ . "/../db/koneksi.php";
 
 // =========================
@@ -11,34 +10,45 @@ if (isset($_POST['simpan'])) {
     $email  = trim($_POST['email']);
     $no_hp  = trim($_POST['no_hp']);
     $alamat = trim($_POST['alamat']);
+    $password = trim($_POST['password']);
+    $konfirmasi = trim($_POST['konfirmasi_password']);
 
-    // Cek email sudah dipakai?
-    $cek = $koneksi->prepare("SELECT id_pengguna FROM pengguna WHERE email = ?");
-    $cek->bind_param("s", $email);
-    $cek->execute();
-    $hasil = $cek->get_result();
-
-    if ($hasil->num_rows > 0) {
-        echo "<script>alert('Email \"$email\" sudah terdaftar!'); window.location='index.php?page=user';</script>";
+    // Cek password cocok
+    if ($password !== $konfirmasi) {
+        echo "<script>alert('Konfirmasi password tidak cocok!');</script>";
     } else {
 
-        // tambah user tanpa password (admin menambahkan data user)
-        $sql = $koneksi->prepare("
-            INSERT INTO pengguna (nama_pengguna, email, no_hp, alamat, password)
-            VALUES (?, ?, ?, ?, 'default123')
-        ");
+        // Cek email sudah dipakai?
+        $cek = $koneksi->prepare("SELECT id_pengguna FROM pengguna WHERE email = ?");
+        $cek->bind_param("s", $email);
+        $cek->execute();
+        $hasil = $cek->get_result();
 
-        $sql->bind_param("ssss", $nama, $email, $no_hp, $alamat);
-
-        if ($sql->execute()) {
-            echo "<script>window.location='index.php?page=user';</script>";
-            exit;
+        if ($hasil->num_rows > 0) {
+            echo "<script>alert('Email \"$email\" sudah terdaftar!');</script>";
         } else {
-            echo "<div class='alert alert-danger'>Gagal menambahkan user: " . $koneksi->error . "</div>";
-        }
-    }
 
-    $cek->close();
+            // Hash password
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+            // Tambah user
+            $sql = $koneksi->prepare("
+                INSERT INTO pengguna (nama_pengguna, email, no_hp, alamat, password)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+
+            $sql->bind_param("sssss", $nama, $email, $no_hp, $alamat, $passwordHash);
+
+            if ($sql->execute()) {
+                echo "<script>window.location='index.php?page=user';</script>";
+                exit;
+            } else {
+                echo "<div class='alert alert-danger'>Gagal menambahkan user: " . $koneksi->error . "</div>";
+            }
+        }
+
+        $cek->close();
+    }
 }
 
 // =========================
@@ -47,10 +57,8 @@ if (isset($_POST['simpan'])) {
 if (isset($_GET['hapus'])) {
     $id = intval($_GET['hapus']);
 
-    // Hapus datanya dari keranjang jika ada
     $koneksi->query("DELETE FROM keranjang WHERE id_pengguna = $id");
 
-    // Hapus user
     $hapus = $koneksi->query("DELETE FROM pengguna WHERE id_pengguna = $id");
 
     if ($hapus) {
@@ -138,7 +146,9 @@ $result = $koneksi->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC");
   </div>
 </div>
 
-<!-- Modal Tambah User -->
+<!-- =========================
+     MODAL TAMBAH USER (FINAL)
+     ========================= -->
 <div class="modal fade" id="tambahUser" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -149,28 +159,47 @@ $result = $koneksi->query("SELECT * FROM pengguna ORDER BY id_pengguna DESC");
         </div>
 
         <div class="modal-body">
+
           <div class="mb-3">
             <label>Nama Pengguna</label>
             <input type="text" name="nama_pengguna" class="form-control" required>
           </div>
+
           <div class="mb-3">
             <label>Email</label>
             <input type="email" name="email" class="form-control" required>
           </div>
+
           <div class="mb-3">
             <label>No HP</label>
             <input type="text" name="no_hp" class="form-control" required>
           </div>
+
           <div class="mb-3">
             <label>Alamat</label>
             <textarea name="alamat" class="form-control" rows="3" required></textarea>
           </div>
+
+          <!-- =========================
+               TAMBAHAN PASSWORD
+               ========================= -->
+          <div class="mb-3">
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label>Konfirmasi Password</label>
+            <input type="password" name="konfirmasi_password" class="form-control" required>
+          </div>
+
         </div>
 
         <div class="modal-footer">
           <button type="submit" name="simpan" class="btn btn-success">Simpan</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
         </div>
+
       </form>
     </div>
   </div>

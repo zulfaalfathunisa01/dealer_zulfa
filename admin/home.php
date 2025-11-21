@@ -93,7 +93,7 @@ include "../db/koneksi.php";
   <div class="card shadow-lg border-0 rounded-4">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0">🧾 Transaksi & Booking Terbaru</h5>
+        <h5 class="fw-bold mb-0">🧾 Transaksi Terbaru</h5>
 
         <button class="btn btn-success btn-sm" onclick="cetakTransaksi()">🖨️ Cetak Laporan</button>
       </div>

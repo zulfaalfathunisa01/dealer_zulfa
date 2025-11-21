@@ -89,7 +89,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <i class="bi bi-eye-slash toggle-eye" onclick="toggle('confirm', this)"></i>
             </div>
 
-            <button type="submit" name="update_password" class="btn btn-success w-100">Simpan Password</button>
+           <button type="submit" name="update_password" class="btn btn-primary w-100">Simpan Password</button>
+
         </form>
     </div>
 </div>

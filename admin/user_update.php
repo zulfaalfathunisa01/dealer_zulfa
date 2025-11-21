@@ -105,19 +105,20 @@ if (isset($_POST['update'])) {
       border: 1px solid #aaa;
     }
     button {
-      width: 100%;
-      padding: 12px;
-      background: #28a745;
-      color: #fff;
-      border: none;
-      font-size: 16px;
-      border-radius: 8px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #218838;
-    }
+  width: 100%;
+  padding: 12px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+button:hover {
+  background: #0069d9;
+}
+
     .btn-back {
       display: block;
       text-align: center;
@@ -156,8 +157,6 @@ if (isset($_POST['update'])) {
 
     <button type="submit" name="update">Simpan Perubahan</button>
   </form>
-
-  <a href="index.php?page=user" class="btn-back">← Kembali ke daftar user</a>
 </div>
 
 </body>
