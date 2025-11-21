@@ -150,11 +150,6 @@ foreach ($items as $it) {
                     <textarea id="alamat" name="alamat" class="form-control" rows="3" placeholder="Masukkan alamat lengkap Anda" required></textarea>
                 </div>
 
-                <div class="mb-3">
-                    <label for="catatan" class="form-label">Catatan Tambahan</label>
-                    <textarea id="catatan" name="catatan" class="form-control" rows="2" placeholder="(Opsional) Contoh: tolong dikirim siang hari"></textarea>
-                </div>
-
                 <button type="submit" name="checkout" class="btn-submit">Proses Pesanan</button>
             </div>
         </form>
