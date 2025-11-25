@@ -5,7 +5,6 @@ include 'db/koneksi.php';
 
 $redirect_url = isset($_GET['redirect']) ? $_GET['redirect'] : "index.php";
 
-echo $redirect_url;
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $email = trim($_POST['email']);

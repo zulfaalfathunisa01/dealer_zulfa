@@ -10,12 +10,17 @@ include "../db/koneksi.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
 
+    // Ambil data user
     $id_pengguna = isset($_POST['id_pengguna']) ? intval($_POST['id_pengguna']) : 0;
-    $nama = $koneksi->real_escape_string($_POST['nama']);
-    $no_hp = $koneksi->real_escape_string($_POST['no_hp']);
-    $alamat = $koneksi->real_escape_string($_POST['alamat']);
+
+    // Perbaikan ini WAJIB (nama_pengguna dari checkout)
+    $nama = isset($_POST['nama_pengguna']) ? $koneksi->real_escape_string($_POST['nama_pengguna']) : '';
+
+    $no_hp = isset($_POST['no_hp']) ? $koneksi->real_escape_string($_POST['no_hp']) : '';
+    $alamat = isset($_POST['alamat']) ? $koneksi->real_escape_string($_POST['alamat']) : '';
     $catatan = isset($_POST['catatan']) ? $koneksi->real_escape_string($_POST['catatan']) : '';
 
+    // Validasi produk
     if (empty($_POST['id_produk']) || empty($_POST['jumlah'])) {
         die("Tidak ada produk untuk diproses.");
     }
@@ -24,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
     $jumlah = $_POST['jumlah'];
     $total_semua = 0;
 
+    // Hitung total harga
     foreach ($id_produk as $i => $pid) {
         $pid = intval($pid);
         $qty = intval($jumlah[$i]);
@@ -38,10 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
     $admin_id = 1;
     $tanggal = date('Y-m-d H:i:s');
     $status = 'proses';
-    
+
     // Nomor booking otomatis
     $nomor_booking = 'BK' . date('YmdHis') . rand(100, 999);
 
+    // Simpan transaksi
     $sql_transaksi = "
         INSERT INTO transaksi (pengguna_id, admin_id, tanggal_transaksi, total_harga, status, nomor_booking)
         VALUES ('$id_pengguna', '$admin_id', '$tanggal', '$total_semua', '$status', '$nomor_booking')
@@ -53,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
 
     $id_transaksi = $koneksi->insert_id;
 
+    // Simpan detail transaksi + kurangi stok
     foreach ($id_produk as $i => $pid) {
         $pid = intval($pid);
         $qty = intval($jumlah[$i]);
@@ -60,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
         $produk = $koneksi->query("SELECT harga, stock FROM produk WHERE id_produk = $pid")->fetch_assoc();
         if (!$produk) die("Produk dengan ID $pid tidak ditemukan.");
 
+        // cek stok
         if ($produk['stock'] < $qty) {
             echo "<script>alert('Stok produk tidak mencukupi untuk produk ID $pid!'); window.location='../produk_keranjang.php';</script>";
             exit;
@@ -71,16 +80,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
         ";
         $koneksi->query($sql_detail);
 
+        // kurangi stok
         $koneksi->query("UPDATE produk SET stock = stock - $qty WHERE id_produk = $pid");
     }
 
+    // Hapus dari keranjang
     if (isset($_POST['id_keranjang'])) {
         foreach ($_POST['id_keranjang'] as $idk) {
             $koneksi->query("DELETE FROM keranjang WHERE id_keranjang = " . intval($idk) . " AND id_pengguna = $id_pengguna");
         }
     }
 
-    // ✅ Notifikasi checkout berhasil + nomor booking
+    // TAMPILAN BERHASIL
     echo "
     <!DOCTYPE html>
     <html lang='id'>
