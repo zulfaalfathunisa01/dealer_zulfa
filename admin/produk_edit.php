@@ -42,10 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Gabungkan deskripsi + spesifikasi ke satu kolom
     $gabung_deskripsi = "Deskripsi: $deskripsi\n\nSpesifikasi: $spesifikasi";
 
-    // Jika ada file foto baru
+ 
     if (!empty($_FILES["foto"]["name"])) {
         $target_dir = "uploads/";
         if (!is_dir($target_dir)) {
@@ -63,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $photo_sql = "";
     }
 
-    // Update produk
+    
     $sql = "UPDATE produk SET 
                 nama_produk='$nama_produk',
                 kategori='$kategori',

@@ -10,14 +10,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password      = $_POST['password'];
     $no_hp         = trim($_POST['no_hp']);
     $alamat        = trim($_POST['alamat']);
-
-    // Validasi email
+    
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>alert('Format email tidak valid!');</script>";
         exit;
     }
 
-    // Cek email duplikat
+    
+if (!preg_match('/^[0-9]/', $no_hp)) {
+    echo "<script>alert('Nomor HP tidak valid!');history.back();</script>";
+    exit;
+}
+   
+    
     $cek = $koneksi->prepare("SELECT id_pengguna FROM pengguna WHERE email = ?");
     $cek->bind_param("s", $email);
     $cek->execute();
@@ -31,10 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Hash password
+    
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    // Insert data
+    
     $stmt = $koneksi->prepare("
         INSERT INTO pengguna (nama_pengguna, email, password, no_hp, alamat)
         VALUES (?, ?, ?, ?, ?)

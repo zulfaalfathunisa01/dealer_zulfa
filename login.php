@@ -44,10 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <meta charset="UTF-8">
   <title>Login Akun</title>
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons (WAJIB supaya icon mata muncul) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 </head>
@@ -61,13 +59,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       <form method="POST">
 
-        <!-- EMAIL -->
         <div class="mb-3">
           <label class="form-label">Email</label>
           <input type="email" name="email" class="form-control" placeholder="Masukkan email Anda" required>
         </div>
 
-        <!-- PASSWORD + SHOW/HIDE -->
         <div class="mb-3">
           <label class="form-label">Password</label>
           <div class="input-group">
@@ -90,7 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </div>
 </div>
 
-<!-- Script Toggle Mata -->
 <script>
 document.getElementById('togglePassword').addEventListener('click', function() {
   const passInput = document.getElementById('password');

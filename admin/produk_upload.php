@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $merk = $_POST['merk'];
   $kategori = $_POST['kategori'];
 
-  // 🔒 Validasi harga & stok
+ 
   if ($harga < 1) {
     $error_harga = "Harga tidak boleh kurang dari 1";
   }
@@ -24,7 +24,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $error_stock = "Stok tidak boleh kurang dari 1";
   }
 
-  // 🔎 Cek duplikat nama produk
   $cek_duplikat = $koneksi->prepare("SELECT COUNT(*) FROM produk WHERE nama_produk = ?");
   $cek_duplikat->bind_param("s", $nama_produk);
   $cek_duplikat->execute();
@@ -36,7 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $error_nama = "Produk dengan nama ini sudah ada!";
   }
 
-  // ✅ Lanjut jika tidak ada error
   if (empty($error_harga) && empty($error_stock) && empty($error_nama)) {
     // Gabungkan deskripsi & spesifikasi
     $deskripsi_gabung = "Deskripsi:\n$deskripsi\n\nSpesifikasi:\n$spesifikasi";

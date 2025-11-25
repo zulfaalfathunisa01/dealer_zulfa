@@ -1,8 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status()) {
     session_start();
 }
 
@@ -44,11 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
     $admin_id = 1;
     $tanggal = date('Y-m-d H:i:s');
     $status = 'proses';
-
-    // Nomor booking otomatis
     $nomor_booking = 'BK' . date('YmdHis') . rand(100, 999);
-
-    // Simpan transaksi
     $sql_transaksi = "
         INSERT INTO transaksi (pengguna_id, admin_id, tanggal_transaksi, total_harga, status, nomor_booking)
         VALUES ('$id_pengguna', '$admin_id', '$tanggal', '$total_semua', '$status', '$nomor_booking')
@@ -91,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
         }
     }
 
-    // TAMPILAN BERHASIL
     echo "
     <!DOCTYPE html>
     <html lang='id'>
@@ -108,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
             Nomor Booking Anda: <strong>$nomor_booking</strong><br>
             Pesanan sedang diproses oleh admin.</p>
             <div class='d-flex justify-content-center gap-2 mt-3'>
-                <a href='../profil.php' class='btn btn-primary'>Lihat Pesanan Saya</a>
+                <a href='../profil.php' class='btn btn-primary'>Lihat Riwayat Pesanan Saya</a>
                 <a href='../index.php' class='btn btn-outline-secondary'>Kembali ke Produk</a>
             </div>
         </div>

@@ -3,7 +3,7 @@ include "../db/koneksi.php";
 ?>
 
 <div class="container mt-4">
-  <h2 class="text-primary mb-4">💰 Detail Total Pendapatan</h2>
+  <h2 class="text-primary mb-4">💰Total Pendapatan</h2>
 
   <!-- 🔹 Form Filter -->
   <form method="GET" action="">
