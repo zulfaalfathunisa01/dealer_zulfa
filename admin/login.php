@@ -15,9 +15,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($admin) {
 
-        $password_db = $admin['password']; // bisa plain text atau hash
+        $password_db = $admin['password']; 
 
-        // 1️⃣ Jika password di database masih PLAIN TEXT
+        // Jika password di database masih PLAIN TEXT
         if ($password === $password_db) {
             
             // Hash password lama agar aman
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
 
-        // 2️⃣ Jika password sudah HASH — gunakan password_verify
+        //  Jika password sudah HASH gunakan password_verify
         if (password_verify($password, $password_db)) {
 
             $_SESSION['id_admin'] = $admin['id_admin'];
@@ -55,10 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta charset="UTF-8">
   <title>Login Admin</title>
 
-  <!-- Bootstrap -->
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons (wajib agar icon mata muncul) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
 </head>

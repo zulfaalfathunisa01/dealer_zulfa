@@ -2,9 +2,8 @@
 include "../db/koneksi.php";
 date_default_timezone_set('Asia/Jakarta');
 
-// ===========================
-// HANDLE UBAH STATUS TRANSAKSI
-// ===========================
+
+// UBAH STATUS TRANSAKSI
 if (isset($_GET['ubah_status']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $status = $koneksi->real_escape_string($_GET['ubah_status']);
